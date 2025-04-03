@@ -1,11 +1,10 @@
+# Import required packages
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
-import pickle
-import numpy as np
 
-
-# thereby, you get all db model classes and can directly connect the app to the database
+# Define app framework
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
@@ -27,6 +26,7 @@ class LargeTable(db.Model):
     advantages = db.Column(db.String)
     limitations = db.Column(db.String)
 
+    # Initialization of a db entry
     def __init__(self, group, subgroup, title, year, doi, model, cell_origin, application, advantages, limitations):
         self.group = group
         self.subgroup = subgroup
@@ -39,6 +39,7 @@ class LargeTable(db.Model):
         self.advantages = advantages
         self.limitations = limitations
 
+    # Conversion to dictionary
     def to_dict(self):
 
         return {
@@ -61,24 +62,27 @@ class Abbreviations(db.Model):
     abbreviation = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(100), nullable=False)
 
+    # Initialization of db entry
     def __init__(self, abbreviation, description):
 
         self.abbreviation = abbreviation
         self.description = description
 
+    # Conversion to dictionary
     def to_dict(self):
 
         return {
             'id': self.id,
             'abbreviation': self.abbreviation,
             'description': self.description
-        }
+        }      
 
-        
+# Create the database in app context
 
-# Create the database
 with app.app_context():
     db.create_all()
+
+# Function for converting the abbreviations table to a database
 
 def addLargeTable(excel_path):
 
@@ -93,6 +97,8 @@ def addLargeTable(excel_path):
         db.session.add(entry)
 
     db.session.commit()
+
+# Function for converting the abbreviations table to a database
 
 def addAbbreviations(excel_path):
 
