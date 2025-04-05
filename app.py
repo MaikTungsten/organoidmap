@@ -22,9 +22,9 @@ def index():
 
 # -- Database routes to fetch data -- 
 
-# .. Route to fetch info ..
-@app.route("/fetch_info")
-def fetch_info():
+# .. Route to fetch large table from database ..
+@app.route("/fetch_large_table")
+def fetch_large_table():
     try:
         entries = LargeTable.query.all()
         
@@ -37,7 +37,25 @@ def fetch_info():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# .. Route to fetch abbreviations from database ..
+@app.route("/fetch_abbreviations")
+def fetch_abbreviations():
+    try:
+        abbreviations = Abbreviations.query.order_by(Abbreviations.abbreviation).all()
+        
+        grouped_abbr = {}
 
+        for abbreviation in abbreviations:
+            key = abbreviation.abbreviation[0].lower()
+            grouped_abbr.setdefault(key, []).append(abbreviation.to_dict())
+    
+        if not grouped_abbr:
+            return jsonify({"error": "No entries found"}), 404
+        
+        return jsonify(grouped_abbr), 200
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Define the LargeTable (main table) model class
 

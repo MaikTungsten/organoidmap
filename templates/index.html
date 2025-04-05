@@ -7,7 +7,7 @@
     <meta name="description" content="">
 
     <!-- My style sheet-->
-    <link rel="stylesheet" href="/static/index.css">
+    <link rel="stylesheet" href="/static/css/index.css">
 
 </head>
 
@@ -21,7 +21,7 @@
     
     <main>
 
-        <section id="head" class="container">
+        <section id="header" class="container">
             This is the header section
         </section>
         
@@ -36,7 +36,28 @@
         </section>
 
         <section id="abbreviations" class="container">
+            <h3>Abbreviations</h3>
+
+            <div id="abbreviations-wrapper">
+
+                <div id="abbr-filterbar">
+
+                </div>
+
+                <div id="abbr-search-wrapper">
+                    <input type="text" name="Search" aria-placeholder="Search Abbreviations..." id="abbr-search">
+                </div>
+
+                <div id="abbr-cards-wrapper">
+
+
+
+                </div>
+
+
+            </div>
             
+
         </section>
         
 
@@ -46,8 +67,9 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <!-- Intern Scripts --> 
-    <script src="/static/requests.js"></script>
-    <script src="/static/index.js"></script>
+    <script src="/static/js/requests.js"></script>
+    <script src="/static/js/classes.js"></script>
+    <script src="/static/js/index.js"></script>
     
 
 </body>
