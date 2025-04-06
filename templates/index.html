@@ -9,6 +9,7 @@
     <!-- My style sheet-->
     <link rel="stylesheet" href="/static/css/index.css">
 
+
 </head>
 
 <body>
@@ -36,21 +37,80 @@
         </section>
 
         <section id="abbreviations" class="container">
-            <h3>Abbreviations</h3>
+            <h2>Abbreviations</h2>
 
             <div id="abbreviations-wrapper">
 
                 <div id="abbr-filterbar">
+                    <button id="all" type="button" class="text-btn"> All</button>
+
+                    <div class="vertical-seperator"></div>
+
+                    <button id="a" type="button" class="text-btn">A</button>
+                    <div class="dot"></div>
+                    <button id="b" type="button" class="text-btn">B</button>
+                    <div class="dot"></div>
+                    <button id="c" type="button" class="text-btn">C</button>
+                    <div class="dot"></div>
+                    <button id="d" type="button" class="text-btn">D</button>
+                    <div class="dot"></div>
+                    <button id="e" type="button" class="text-btn">E</button>
+                    <div class="dot"></div>
+                    <button id="f" type="button" class="text-btn">F</button>
+                    <div class="dot"></div>
+                    <button id="g" type="button" class="text-btn">G</button>
+                    <div class="dot"></div>
+                    <button id="h" type="button" class="text-btn">H</button>
+                    <div class="dot"></div>
+                    <button id="i" type="button" class="text-btn">I</button>
+                    <div class="dot"></div>
+                    <button id="j" type="button" class="text-btn">J</button>
+                    <div class="dot"></div>
+                    <button id="k" type="button" class="text-btn">K</button>
+                    <div class="dot"></div>
+                    <button id="l" type="button" class="text-btn">L</button>
+                    <div class="dot"></div>
+                    <button id="m" type="button" class="text-btn">M</button>
+                    <div class="dot"></div>
+                    <button id="n" type="button" class="text-btn">N</button>
+                    <div class="dot"></div>
+                    <button id="o" type="button" class="text-btn">O</button>
+                    <div class="dot"></div>
+                    <button id="p" type="button" class="text-btn">P</button>
+                    <div class="dot"></div>
+                    <button id="q" type="button" class="text-btn">Q</button>
+                    <div class="dot"></div>
+                    <button id="r" type="button" class="text-btn">R</button>
+                    <div class="dot"></div>
+                    <button id="s" type="button" class="text-btn">S</button>
+                    <div class="dot"></div>
+                    <button id="t" type="button" class="text-btn">T</button>
+                    <div class="dot"></div>
+                    <button id="u" type="button" class="text-btn">U</button>
+                    <div class="dot"></div>
+                    <button id="v" type="button" class="text-btn">V</button>
+                    <div class="dot"></div>
+                    <button id="w" type="button" class="text-btn">W</button>
+                    <div class="dot"></div>
+                    <button id="x" type="button" class="text-btn">X</button>
+                    <div class="dot"></div>
+                    <button id="y" type="button" class="text-btn">Y</button>
+                    <div class="dot"></div>
+                    <button id="z" type="button" class="text-btn">Z</button>
 
                 </div>
 
-                <div id="abbr-search-wrapper">
-                    <input type="text" name="Search" aria-placeholder="Search Abbreviations..." id="abbr-search">
+                <div id="abbr-search">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                        <input type="text" name="Search" placeholder="Search Abbreviations..." aria-placeholder="Search Abbreviations..." id="search-input">
+                    </div>
+                    <button class="close-btn" type="button" aria-label="Search">
+                        <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                    </button>
                 </div>
 
                 <div id="abbr-cards-wrapper">
-
-
 
                 </div>
 
@@ -65,6 +125,9 @@
 
     <!-- Axios Script -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Font Awesome Script for Icons -->
+    <script src="https://kit.fontawesome.com/b891bf6f8e.js" crossorigin="anonymous"></script>
 
     <!-- Intern Scripts --> 
     <script src="/static/js/requests.js"></script>
