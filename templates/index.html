@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
 
+    <!-- Tabulator Stylesheet -->
+    
+    <link href="https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator_bulma.min.css" rel="stylesheet">
+
     <!-- My style sheet-->
     <link rel="stylesheet" href="/static/css/index.css">
 
@@ -23,7 +27,71 @@
     <main>
 
         <section id="header" class="container">
-            This is the header section
+            <h1 class="display-1">
+                OrganoidMap
+            </h1>
+            <h1 class="display-2">.. your place for organoid research</h1>
+
+            <div id="header-search">
+ 
+                <input type="text" name="Search" placeholder="Search Abbreviations..." aria-placeholder="Search Abbreviations..." class="search-input">
+               
+                <button class="close-btn" type="button" aria-label="Search">
+                    <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                </button>
+
+
+                <div class="select-wrapper">
+                    <div class="select">
+                      <div class="select-text-field">
+                        All Fields
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="select-options">
+
+                    </div>  
+                </div>
+
+        
+
+                <button id="search-btn" class="icon-btn" type="button" aria-label="Search">
+                    <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                </button>
+            </div>
+
+            <div id="stats-wrapper">
+
+                <div id="papers-stat" class="stat">
+                    <div id="papers-number" class="stats-number" target="800">600</div>
+                    <div id="papers-text" class="stats-text">Research Papers</div>
+                </div>
+
+                <div class="vertical-seperator"></div>
+
+                <div id="models-stat" class="stat">
+                    <div id="models-number" class="stats-number" target="3">0</div>
+                    <div id="models-text" class="stats-text">Models</div>
+                </div>
+
+
+                <div class="vertical-seperator"></div>
+
+                <div id="subgroups-stat" class="stat">
+                    <div id="subgroups-number" class="stats-number" target="17">0</div>
+                    <div id="subgroups-text" class="stats-text">Subgroups</div>
+                </div>
+
+                <sl-divider vertical></sl-divider>
+
+                <div id="something" class="stat">
+                    <div id="something-number" class="stats-number" target="134">0</div>
+                    <div id="something-text" class="stats-text">something</div>
+                </div>
+
+            </div>
+
+
         </section>
         
         
@@ -33,6 +101,10 @@
         </section>
 
         <section id="datatable" class="container">
+            <h2>Dataset</h2>
+            <div id="table-container">
+
+            </div>
             
         </section>
 
@@ -103,7 +175,7 @@
                 <div id="abbr-search">
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
-                        <input type="text" name="Search" placeholder="Search Abbreviations..." aria-placeholder="Search Abbreviations..." id="search-input">
+                        <input type="text" name="Search" placeholder="Search Abbreviations..." aria-placeholder="Search Abbreviations..." class="search-input">
                     </div>
                     <button class="close-btn" type="button" aria-label="Search">
                         <i class="fa-solid fa-xmark" aria-disabled="true"></i>
@@ -128,6 +200,9 @@
 
     <!-- Font Awesome Script for Icons -->
     <script src="https://kit.fontawesome.com/b891bf6f8e.js" crossorigin="anonymous"></script>
+
+    <!-- Tabulator script v6.3 -->
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js"></script> 
 
     <!-- Intern Scripts --> 
     <script src="/static/js/requests.js"></script>
