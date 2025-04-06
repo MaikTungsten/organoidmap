@@ -9,8 +9,10 @@ class LargeTable {
     /**
      * @param {number} id
      * @param {string} group 
-     * @param {string} subgroup 
-     * @param {string} title 
+     * @param {string} subgroup
+     * @param {string} focus 
+     * @param {string} title
+     * @param {string} journal 
      * @param {number} year 
      * @param {string} doi 
      * @param {string} model
@@ -20,11 +22,13 @@ class LargeTable {
      * @param {string} limitations
 
      */
-    constructor(id, group, subgroup, title, year, doi, model, cell_origin, application, advantages, limitations){
+    constructor(id, group, subgroup, focus, title, journal, year, doi, model, cell_origin, application, advantages, limitations){
         this.id = id;
         this.group = group;
         this.subgroup = subgroup;
+        this.focus = focus;
         this.title = title;
+        this.journal = journal;
         this.year = year;
         this.doi = doi;
         this.model = model;

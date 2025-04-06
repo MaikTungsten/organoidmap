@@ -63,7 +63,9 @@ class LargeTable(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     group = db.Column(db.String, nullable=False)
     subgroup = db.Column(db.String, nullable=False)
+    focus = db.Column(db.String)
     title = db.Column(db.String)
+    journal = db.Column(db.String)
     year = db.Column(db.Integer, nullable=False)
     doi = db.Column(db.String)
     model = db.Column(db.String, nullable=False)
@@ -73,10 +75,12 @@ class LargeTable(db.Model):
     limitations = db.Column(db.String)
 
     # Initialization of a db entry
-    def __init__(self, group, subgroup, title, year, doi, model, cell_origin, application, advantages, limitations):
+    def __init__(self, group, subgroup, focus, title, journal, year, doi, model, cell_origin, application, advantages, limitations):
         self.group = group
         self.subgroup = subgroup
+        self.focus = focus
         self.title = title
+        self.journal = journal
         self.year = year
         self.doi = doi
         self.model = model
@@ -92,7 +96,9 @@ class LargeTable(db.Model):
             'id': self.id,
             'group': self.group,
             'subgroup': self.subgroup,
+            'focus' : self.focus,
             'title': self.title,
+            'journal' : self.journal,
             'year': self.year,
             'doi': self.doi,
             'model': self.model,
@@ -132,12 +138,12 @@ with app.app_context():
 
 def addLargeTable(excel_path):
 
-    df = pd.read_excel(excel_path)
+    df = pd.read_excel(excel_path, sheet_name='Map')
 
     for _, row in df.iterrows():
         
-        entry = LargeTable(group=row['Group'], subgroup=row['Subgroup'], title=row['title'],
-                           year=row['Year'], cell_origin=row['Cell origin'], doi=row['DOI'],
+        entry = LargeTable(group=row['Group'], subgroup=row['Subgroup'], focus=row['Focus'], title=row['Title'],
+                           journal=row['Journal'], year=row['Year'], cell_origin=row['Cell origin'], doi=row['DOI'],
                            model=row['Model'], application=row['Application'], advantages=row['Advantages'],
                            limitations=row['Limitations'])
         db.session.add(entry)
@@ -148,7 +154,7 @@ def addLargeTable(excel_path):
 
 def addAbbreviations(excel_path):
 
-    df = pd.read_excel(excel_path)
+    df = pd.read_excel(excel_path, sheet_name='Abbreviations')
 
     for _, row in df.iterrows():
         
