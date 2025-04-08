@@ -97,7 +97,6 @@ async function initializePage() {
     papers_number_field.target = large_table.length;
     papers_number_field.innerText = 600;
 
-    console.log(papers_number_field)
 
     animateStats();
 
@@ -121,6 +120,7 @@ async function initializePage() {
     const abbr_cards_wrapper = document.getElementById("abbr-cards-wrapper");
     const filterbar_buttons = document.querySelectorAll("#abbr-filterbar button")
     const all_button = document.getElementById("all");
+    const a_button = document.getElementById('a');
     const abbr_search_input = document.querySelector("#abbr-search .search-wrapper input");
     const abbr_search_close_button = document.querySelector("#abbr-search .close-btn");
 
@@ -196,8 +196,8 @@ async function initializePage() {
     });
 
     // initialize abbreviation section
-    all_button.classList.add("active"); // make the all button active initially
-    all_button.click(); // initiate click event for all button
+    a_button.classList.add("active"); // make the a button active initially
+    a_button.click(); // initiate click event for a button
      
     // add function to the search field
     abbr_search_input.addEventListener('input', (event) =>{

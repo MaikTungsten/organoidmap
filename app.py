@@ -20,6 +20,10 @@ db.init_app(app)
 def index():
     return render_template("index.html")
 
+@app.route('/legal')
+def legal():
+    return render_template("legal.html")
+
 # -- Database routes to fetch data -- 
 
 # .. Route to fetch large table from database ..
