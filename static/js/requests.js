@@ -42,6 +42,22 @@ async function fetch_large_table() {
     .finally( )
 }
 
+/**
+ * Function that fetches list of unique values for a specific column string 
+ * @returns {string[]} 
+ */
+async function fetch_unique_entries(col) {
+    return axios
+    .get( "/fetch_unique_entries", {params: {col}} )
+    .then( ( response ) => {
+
+        return response.data;
+    } )
+    .catch( ( error ) => {
+        console.log("Error fetching unique entries: ", error);
+    } )
+    .finally( )
+}
 
 /**
  * Function to fetch Abbreviation from Database

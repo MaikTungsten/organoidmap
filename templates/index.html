@@ -27,10 +27,12 @@
     <main>
 
         <section class="header">
-            <h1 class="display-1">
-                OrganoidMap
-            </h1>
-            <h1 class="display-2">.. your place for cerebral organoid research</h1>
+            <div class="header-background">
+                <h1 class="display-1">
+                    OrganoidMap
+                </h1>
+                <h1 class="display-2">.. your place for cerebral organoid research</h1>
+            </div>
 
             <div id="header-search">
  
@@ -63,7 +65,7 @@
             <div id="stats-wrapper">
 
                 <div id="papers-stat" class="stat">
-                    <div id="papers-number" class="stats-number" target="800">600</div>
+                    <div id="papers-number" class="stats-number" target="800">0</div>
                     <div id="papers-text" class="stats-text">Research Papers</div>
                 </div>
 
@@ -84,9 +86,16 @@
 
                 <sl-divider vertical></sl-divider>
 
-                <div id="something" class="stat">
-                    <div id="something-number" class="stats-number" target="134">0</div>
-                    <div id="something-text" class="stats-text">something</div>
+                <div id="focuses" class="stat">
+                    <div id="focuses-number" class="stats-number" target="134">0</div>
+                    <div id="focuses-text" class="stats-text">Focuses</div>
+                </div>
+
+                <sl-divider vertical></sl-divider>
+                
+                <div id="journals" class="stat">
+                    <div id="journals-number" class="stats-number" target="134">0</div>
+                    <div id="journals-text" class="stats-text">Journals</div>
                 </div>
 
             </div>
@@ -114,9 +123,44 @@
 
             <div class="about-section" id="vision">
                 <h1>Vision</h1>
-                <p>Our interactive platform brings together approximately 800 publications from the past decade, systematically categorized by research domain, cell source, application, as well as model advantages and limitations.</p>
+                <p>Our interactive platform brings together <span id="papers-span">approximately 800</span> publications from the past decade, systematically categorized by research domain, cell source, application, as well as model advantages and limitations.</p>
             </div>
             
+        </section>
+
+        <section id="how-to">
+            <h1>How to Use the Platform</h1>
+            <p>
+                You have two main ways to explore the dataset:
+
+                <ol>
+                    <li> <strong>Search Bar</strong>
+                         <br> Use the search bar at the top of the page to directly look for specific terms, keywords, or topics.
+                    </li>
+                    <br>
+                    <li>
+                        <strong>Filter Options</strong>
+                        <br>
+                        Use the filter panel to explore and narrow down studies based on key categories:
+
+                        <ul>
+                            <li>Group – Neurodevelopment, Neurodegeneration, or Neuro-oncology</li>
+                            <li>Subgroup – e.g., functional studies in neurodevelopment, tauopathies in neurodegeneration, or glioma in neuro-oncology</li>
+                            <li>Model Type – e.g., Cerebral organoid, assembloid, or co-culture systems</li>
+                            <li>Cell Origin – e.g., embryonic stem cells (ESCs) or induced pluripotent stem cells (iPSCs)</li>
+                        </ul>
+
+                    </li>
+                </ol>
+                
+                
+                <br>
+                By visualizing trends and synthesizing relevant models in one table — allowing you to directly compare their advantages and limitations — we aim to support more informed, precise, and translationally relevant neuroscience.
+                
+
+                
+
+            </p>
         </section>
 
         <section id="visualizations">
@@ -229,19 +273,19 @@
                         72070 Tübingen <br>
                         Mail: <a href="mailto:mail@annawolfram.com">mail@annawolfram.com</a> </p>
                 </div>
+                
+            </div>
+            <div class="horizontal-seperator"></div>
+            <div id="bottom-row">
+                <div id="copyright">
+                    © 2025 Anna Wolfram
+                </div>
                 <div id="links">
                     <a href="/legal#impressum"> Impressum / Legal Disclosure</a>
                     <a href="/legal#privacy-policy">Privacy Policy</a>
                     <a href="/legal#terms-of-use">Terms of use</a>
                     <a href="/legal#disclaimer">Disclaimer</a>
                     <a href="/legal#accessibility-statement">Accessibility statement</a>
-                    
-                </div>
-            </div>
-            <div class="horizontal-seperator"></div>
-            <div class="bottom-row">
-                <div id="copyright">
-                    © 2025 Anna Wolfram
                 </div>
             </div>
 
@@ -255,6 +299,9 @@
 
     <!-- Font Awesome Script for Icons -->
     <script src="https://kit.fontawesome.com/b891bf6f8e.js" crossorigin="anonymous"></script>
+
+    <!-- Echarts v5.6.0 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
 
     <!-- Tabulator script v6.3 -->
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js"></script> 

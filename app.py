@@ -1,6 +1,6 @@
 # Import required packages
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template,request
 from flask_sqlalchemy import SQLAlchemy
 from init import db
 import pandas as pd
@@ -37,6 +37,22 @@ def fetch_large_table():
         if not entries:
             return jsonify({"error": "No entries found"}), 404
         return jsonify(entries_dict), 200
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
+# .. Route that fetches list of unique values for a specific column string ..
+@app.route("/fetch_unique_entries")
+def fetch_unique_entries():
+    try:
+        col = request.args.get('col')
+        
+        entries = [entry[0] for entry in LargeTable.query.with_entities(getattr(LargeTable, col)).distinct().all()]
+    
+        if not entries:
+            return jsonify({"error": "No entries found"}), 404
+        return jsonify(entries), 200
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -1,7 +1,7 @@
 /**
  * Function to initialize the html page
  */
-async function initializePage() {
+async function initializeMainPage() {
 
 
     const grouped_abbreviations = await fetch_abbreveations();
@@ -80,22 +80,43 @@ async function initializePage() {
     }
 
     // handle if enter is clicked
-    header_search_input.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
+    header_search_input.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
             const value = event.target.value;
             console.log(value);
         }
     });
 
+    // ---- stats 
 
-    const stats = document.querySelectorAll('.stats-number');
+    // get all stats number fields 
+    const papers_number_field = document.getElementById("papers-number");
+    const models_number_field = document.getElementById("models-number");
+    const subgroups_number_field = document.getElementById("subgroups-number"); 
+    const focuses_number_field = document.getElementById("focuses-number");
+    const journals_number_field = document.getElementById("journals-number");
 
-    const papers_number_field = Array.from(stats).find(el => el.id === 'papers-number');
+    // fetch numbers 
+    const models = await fetch_unique_entries("model");
+    const subgroups = await fetch_unique_entries("subgroup");
+    const focuses = await fetch_unique_entries("focus");
+    const journals = await fetch_unique_entries("journal");
 
-    console.log(papers_number_field)
+    // set number of papers
+    papers_number_field.setAttribute("target", large_table.length );
+    papers_number_field.innerText = Math.max(large_table.length - (Math.round(large_table.length*0.25)), 0);
 
-    papers_number_field.target = large_table.length;
-    papers_number_field.innerText = 600;
+    models_number_field.setAttribute("target", models.length );
+    models_number_field.innerText = Math.max(models.length - (Math.round(models.length*0.25)), 0);
+
+    subgroups_number_field.setAttribute("target", subgroups.length );
+    subgroups_number_field.innerText = subgroups.length - (Math.round(subgroups.length*0.25));
+
+    focuses_number_field.setAttribute("target", focuses.length );
+    focuses_number_field.innerText = Math.max(focuses.length - (Math.round(focuses.length*0.25)), 0);
+
+    journals_number_field.setAttribute("target", journals.length );
+    journals_number_field.innerText = Math.max(journals.length - (Math.round(journals.length*0.25)), 0);
 
 
     animateStats();
@@ -108,6 +129,15 @@ async function initializePage() {
     //#endregion Header
 
     
+    //#region About
+    const papers_span = document.getElementById("papers-span");
+
+    papers_span.textContent = large_table.length;
+    
+    //#endregion About
+
+
+
     //#region Datatable
     createDataTable(large_table);
     //#endregion datatable
@@ -120,7 +150,7 @@ async function initializePage() {
     const abbr_cards_wrapper = document.getElementById("abbr-cards-wrapper");
     const filterbar_buttons = document.querySelectorAll("#abbr-filterbar button")
     const all_button = document.getElementById("all");
-    const a_button = document.getElementById('a');
+    const a_button = document.getElementById("a");
     const abbr_search_input = document.querySelector("#abbr-search .search-wrapper input");
     const abbr_search_close_button = document.querySelector("#abbr-search .close-btn");
 
@@ -136,7 +166,7 @@ async function initializePage() {
             button.onclick = function() {
                 // remove currently active button if one is active
                 if(active_button){
-                    active_button.classList.remove('active');
+                    active_button.classList.remove("active");
                 }
 
                 // set all button as currently active
@@ -147,7 +177,7 @@ async function initializePage() {
                 const abbreviations = returnAbbreviationsByLetter(grouped_abbreviations, button.id);
 
                 // reset cards wrapper 
-                abbr_cards_wrapper.innerHTML='';
+                abbr_cards_wrapper.innerHTML="";
     
                 // create a card for each abbreviation and append to container
                 if(abbreviations){
@@ -166,7 +196,7 @@ async function initializePage() {
                 button.onclick = function() {
                     // remove currently active button if one is active
                     if(active_button){
-                        active_button.classList.remove('active');
+                        active_button.classList.remove("active");
                     }
     
                     // set button as currently active
@@ -177,7 +207,7 @@ async function initializePage() {
                     const abbreviations = returnAbbreviationsByLetter(grouped_abbreviations, button.id);
     
                     // reset cards wrapper 
-                    abbr_cards_wrapper.innerHTML='';
+                    abbr_cards_wrapper.innerHTML="";
     
                     // create a card for each abbreviation and append to container
                     if(abbreviations){
@@ -200,7 +230,7 @@ async function initializePage() {
     a_button.click(); // initiate click event for a button
      
     // add function to the search field
-    abbr_search_input.addEventListener('input', (event) =>{
+    abbr_search_input.addEventListener("input", (event) =>{
         const input = event.target.value;
 
         if(input.length>0){
@@ -254,9 +284,24 @@ async function initializePage() {
 
 }
 
+async function initializeLegalPage() { 
+    
+    const back_btn = document.getElementById("back-btn");
 
+    // add function to the back button
+    back_btn.onclick = function() {
+        window.location.href = "/"
+    }
+}
 
-initializePage()
+// depending on which page is active, run different initialize functions
+if(window.location.pathname === "/"){
+    initializeMainPage();
+} else if (window.location.pathname === "/legal"){
+    initializeLegalPage();
+
+}
+
 
 //#region Function for Header
 /**
@@ -264,14 +309,14 @@ initializePage()
  */
 
 function animateStats() {
-    const stats = document.querySelectorAll('.stats-number');
+    const stats = document.querySelectorAll(".stats-number");
 
     for(let stat of stats){
         const updateStats = function() {
 
-            const target =+ stat.getAttribute('target');
+            const target =+ stat.getAttribute("target");
             const count =+ stat.innerText;
-            const speed = 1000000000000000;
+            const speed = 1000000000000;
 
             const inc = target / speed; 
             if (count < target){
@@ -298,8 +343,9 @@ function createDataTable(large_table){
     const tableCols = [
         {title: "Group", field: "group"},
         {title: "Subgroup", field: "subgroup"},
+        {title: "Focus", field: "focus"},
         {title: "Title", field: "title", formatter: "textarea", width: 350},
-        // {title: "Journal", field: "journal"},
+        {title: "Journal", field: "journal"},
         {title: "Year", field: "year"},
         {title: "DOI", field: "doi", formatter:"link", width: 200},
         {title: "Model", field: "model"},
@@ -327,7 +373,7 @@ function createDataTable(large_table){
 
     // download table when button is clicked
     // const downloadButton = document.getElementById("download-table-button");
-    // downloadButton.addEventListener('click', () => {
+    // downloadButton.addEventListener("click", () => {
     //     table.download("csv", "data_overview.csv");
     // });
 }
