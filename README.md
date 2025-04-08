@@ -18,4 +18,4 @@ Questions or feedback regarding the web app? Please contact maik.wolfram-schauer
 
 ## Acknowledgement
 
-This web app has been created by Caroline Trust, Dr. Maik Wolfram-Schauerte, Anna Wolfram and colleagues. The web app is hosted on the infrastructure of the Institute for Bioinformatics and Medical Informatics (IBMI) at Tübingen University.
+This web app has been created by Caroline Trust, Dr. Maik Wolfram-Schauerte, Anna Wolfram and colleagues. The web app is hosted on the infrastructure of the Institute for Bioinformatics and Medical Informatics (IBMI) at Tübingen University. This work has been supported by funding from the Joachim Herz Foundation.
