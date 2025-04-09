@@ -21,6 +21,21 @@ h1,h2,h3{
     margin: 0;
 }
 
+.display-1 {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+.display-2 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0;
+    padding:0;
+}
+
+
 
 
 /* -- HTML Elements -- */
@@ -37,6 +52,7 @@ body{
     background-color: var(--background);
     margin: 0;
     width: 100%;
+    scroll-behavior: smooth;
 }
 
 section{
@@ -86,6 +102,42 @@ i{
     color: var(--text);
 }
 
+.select i {
+    transition: transform 0.3s ease-in-out;
+}
+
+.select.open i{
+    transform: rotate(180deg);
+    
+}
+
+.search{
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    border: 1px solid var(--inactive);
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.25);
+    border-radius: 48px;
+}
+
+.search-input{
+    width: 100%;
+}
+
+.search-wrapper{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search i{
+    color: var(--search-icon);
+}
+
 .vertical-seperator{
     width: 1px;
     height: 100%;
@@ -105,19 +157,6 @@ i{
     border-radius: 100%;
 }
 
-.display-1 {
-    font-size: 4rem;
-    font-weight: bold;
-    margin: 0;
-    padding: 0;
-}
-
-.display-2 {
-    font-size: 3rem;
-    font-weight: bold;
-    margin: 0;
-    padding:0;
-}
 
 
 
@@ -207,15 +246,6 @@ i{
 }
 
 
-#header-search .select i {
-    transition: transform 0.3s ease-in-out;
-}
-
-#header-search .select.open i{
-    transform: rotate(180deg);
-    
-}
-
 #header-search .select-text-field{
     font-size: 1.5rem;
 }
@@ -289,6 +319,126 @@ i{
 
 
 /*#region -- datatable -- */
+#table-filters{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: stretch;
+    background-color: var(--primary);
+    padding: 0.5rem;
+    gap: 10px;
+    border-radius: 10px;
+}
+
+#table-filters .select-wrapper{
+    flex: 1;
+    position: relative;
+}
+
+#table-filters .select{
+    display: flex;
+    flex-direction: row;
+    background-color: white;
+    border: 1px solid var(--inactive);
+    border-radius: 0.25rem;
+    width: 100%;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding: 0.5rem 1rem ;
+}
+
+#table-filters .select.active-filter{
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+#table-filters .filter-options{
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    top: 100%;
+    left: 0;
+    min-width: 100%; 
+    width: 300px;
+    max-height: 300px;
+    z-index: 10;
+    background: white;
+    gap: 0.875rem;
+    border: 1px solid var(--inactive);
+    border-radius: 0.25rem;
+
+
+    overflow-y: auto; 
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f0f0f0;
+}
+
+#journal-filter .filter-options{
+    right: 0;
+    left: auto;
+}
+
+.filter-options::-webkit-scrollbar {
+    width: 4px;             
+}
+
+.filter-options::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.3); 
+    border-radius: 10px;               
+}
+
+.filter-options::-webkit-scrollbar-track {
+    background-color: #f0f0f0; 
+    border-radius: 10px;
+  }
+
+
+#table-filters .filter-options .options-container{
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+}
+
+.options-container .checkbox{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    gap: 0.5rem;
+}
+
+.options-container .checkbox:hover{
+    background-color: var(--accent);
+}
+
+.checkbox label{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    gap: 2rem;
+}
+
+.checkbox label span{
+    color: var(--subtext);
+}
+
+#table-filters .search{
+    padding: 3%;
+    width: 90%;
+    align-self: center;
+    margin-top: 1rem;
+    
+}
+
+#table-filters .search i{
+    font-size: 0.8rem;
+}
+
+
+
 
 /*#endregion */
 
@@ -343,28 +493,9 @@ i{
 }
 
 #abbr-search{
-    display: flex;
-    flex-direction: row;
-    box-sizing: border-box;
-    justify-content: space-between;
-    align-items: center;
-    background-color: white;
-    border: 1px solid var(--inactive);
-    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.25);
-    border-radius: 48px;
     width: 40%;
     height: 40px;
     padding: 8px 16px;
-}
-
-#abbr-search .search-wrapper{
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-}
-
-#abbr-search i{
-    color: var(--search-icon);
 }
 
 

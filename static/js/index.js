@@ -16,7 +16,8 @@ async function initializeMainPage() {
     const select = document.querySelector("#header-search .select");
 
     //  add options to select
-    const table_columns = ["All_Fields"].concat(Object.keys(large_table[0])); // get all table columns for the field filter
+    // const table_columns = ["All_Fields"].concat(Object.keys(large_table[0])); // get all table columns for the field filter
+    const table_columns = ["All_Fields", "Title", "Application", "Advantages", "Limitations"]
 
     let active_opt;
 
@@ -36,12 +37,18 @@ async function initializeMainPage() {
 
         // add function to options
         option.onclick = function(){
+            
             select_textfield.innerText = option.innerText;
-            select_textfield.setAttribute("data-value", col);
+            select_textfield.parentNode.setAttribute("data-value", col
+                                                                    .split("_")
+                                                                    .map(word => word.charAt(0).toLowerCase() + word.slice(1))
+                                                                    .join(" "));
 
             // set the active attribute to active option
             if(active_opt){
                 active_opt.classList.remove("active");
+                option.classList.add("active");
+                active_opt = option;
             }else{
                 option.classList.add("active");
                 active_opt = option;
@@ -69,23 +76,6 @@ async function initializeMainPage() {
         }
     };
 
-    
-    
-    // handle search btn
-    header_search_btn.onclick = function(){
-        button_clicked = true;
-        const value = header_search_input.value;
-        console.log(value)
-        
-    }
-
-    // handle if enter is clicked
-    header_search_input.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
-            const value = event.target.value;
-            console.log(value);
-        }
-    });
 
     // ---- stats 
 
@@ -118,6 +108,10 @@ async function initializeMainPage() {
     journals_number_field.setAttribute("target", journals.length );
     journals_number_field.innerText = Math.max(journals.length - (Math.round(journals.length*0.25)), 0);
 
+    console.log(subgroups.length)
+
+
+
 
     animateStats();
 
@@ -139,7 +133,60 @@ async function initializeMainPage() {
 
 
     //#region Datatable
+
+    // get all select elements
+    const group_select = document.querySelector("#group-filter .select");
+    const subgroup_select = document.querySelector("#subgroup-filter .select");
+    const focus_select = document.querySelector("#focus-filter .select");
+    const model_select = document.querySelector("#model-filter .select");
+    const cell_origin_select = document.querySelector("#cell-origin-filter .select");
+    const year_select = document.querySelector("#year-filter .select");
+    const journal_select = document.querySelector("#journal-filter .select");
+
+    const all_selects = [group_select,subgroup_select, focus_select,model_select, cell_origin_select, year_select, journal_select];
+
+    // add functions to all select buttons (show/hide options on click)
+    let open_option = null; // flag to track visible/opened options
+
+    all_selects.forEach(select => {
+        const options = select.nextElementSibling;
+
+        select.onclick = function () {
+            // if some other dropdown is open -> close it first
+            if (open_option && open_option !== options) {
+                open_option.style.display = "none";
+                open_option.previousElementSibling.classList.remove("open");
+            }
+
+            // toggle current dropdown
+            const isOpen = options.style.display === "flex";
+
+            if (isOpen) {
+                options.style.display = "none";
+                select.classList.remove("open");
+                open_option = null;
+            } else {
+                options.style.display = "flex";
+                select.classList.add("open");
+                open_option = options;
+            }
+
+            // eventlistener that closes opend options if a click happens anywhere else
+            document.addEventListener("click", (e) => {
+                if (open_option && !open_option.contains(e.target) && !open_option.previousElementSibling.contains(e.target)) {
+                    open_option.style.display = "none";
+                    open_option.previousElementSibling.classList.remove("open");
+                    open_option = null;
+                }
+            });
+        };
+    });
+
+
+    // create data table
     createDataTable(large_table);
+
+
     //#endregion datatable
 
 
@@ -338,7 +385,7 @@ function animateStats() {
  * @param {LargeTable[]} large_table - Array of LargeTable.
  */
 function createDataTable(large_table){
-
+   
     // create the columns for the table
     const tableCols = [
         {title: "Group", field: "group"},
@@ -355,9 +402,6 @@ function createDataTable(large_table){
         {title: "Limitations", field: "limitations", formatter: "textarea", width: 450}
     ];
 
-
-
-
     // create the tabulator table 
     var table = new Tabulator("#table-container", {
         data: large_table,
@@ -369,14 +413,415 @@ function createDataTable(large_table){
         paginationSize: 5,
         paginationSizeSelector:[5, 10, 25, 50, 100, 250],
         paginationCounter:"rows",  
-    })
+    });
 
     // download table when button is clicked
     // const downloadButton = document.getElementById("download-table-button");
     // downloadButton.addEventListener("click", () => {
     //     table.download("csv", "data_overview.csv");
     // });
+
+    // fill filter options // get all select elements
+    const group_options_container = document.querySelector("#group-filter .filter-options .options-container");
+    const subgroup_options_container = document.querySelector("#subgroup-filter .filter-options .options-container");
+    const focus_options_container = document.querySelector("#focus-filter .filter-options .options-container");
+    const model_options_container = document.querySelector("#model-filter .filter-options .options-container");
+    const cell_origin_options_container = document.querySelector("#cell-origin-filter .filter-options .options-container");
+    const year_options_container = document.querySelector("#year-filter .filter-options .options-container");
+    const journal_options_container = document.querySelector("#journal-filter .filter-options .options-container");
+
+    const group_search = document.querySelector("#group-search input");
+    const subgroup_search = document.querySelector("#subgroup-search input");
+    const focus_search = document.querySelector("#focus-search input");
+    const model_search = document.querySelector("#model-search input");
+    const cell_origin_search = document.querySelector("#cell-origin-search input");
+    const year_search = document.querySelector("#year-search input");
+    const journal_search = document.querySelector("#journal-search input");
+
+
+    table.on("dataLoaded", function(data){
+
+        // GROUP FILTER 
+        fillOptionsContainer(group_options_container, "group", data);
+        activateFilterSearch(group_options_container, group_search);
+        activateCheckboxFilter(group_options_container, "group", table);
+        colorSelectedFilter(group_options_container)
+
+        // SUBGROUP FILTER 
+        fillOptionsContainer(subgroup_options_container, "subgroup", data);
+        activateFilterSearch(subgroup_options_container, subgroup_search);
+        activateCheckboxFilter(subgroup_options_container, "subgroup", table);
+        colorSelectedFilter(subgroup_options_container)
+
+        // FOCUS FILTER 
+        fillOptionsContainer(focus_options_container, "focus", data);
+        activateFilterSearch(focus_options_container, focus_search);
+        activateCheckboxFilter(focus_options_container, "focus", table);
+        colorSelectedFilter(focus_options_container)
+
+        // MODEL FILTER 
+        fillOptionsContainer(model_options_container, "model", data);
+        activateFilterSearch(model_options_container, model_search);
+        activateCheckboxFilter(model_options_container, "model", table);
+        colorSelectedFilter(model_options_container)
+
+        // CELL ORIGIN FILTER 
+        fillOptionsContainer(cell_origin_options_container, "cell_origin", data);
+        activateFilterSearch(cell_origin_options_container, cell_origin_search);
+        activateCheckboxFilter(cell_origin_options_container, "cell_origin", table);
+        colorSelectedFilter(cell_origin_options_container)
+
+        // YEAR FILTER 
+        fillOptionsContainer(year_options_container, "year", data);
+        activateFilterSearch(year_options_container, year_search);
+        activateCheckboxFilter(year_options_container, "year", table);
+        colorSelectedFilter(year_options_container)
+
+        // JOURNAL FILTER 
+        fillOptionsContainer(journal_options_container, "journal", data);
+        activateFilterSearch(journal_options_container, journal_search);
+        activateCheckboxFilter(journal_options_container, "journal", table);
+        colorSelectedFilter(journal_options_container)
+        
+        // add function to the header search bar 
+        const header_search_input = document.querySelector("#header-search input");
+        const header_search_close = document.querySelector("#header-search .close-btn");
+        const header_search_select = document.querySelector("#header-search .select");
+        const header_search_btn = document.querySelector("#header-search #search-btn");
+
+        // handle search btn
+        header_search_btn.onclick = function(){
+            button_clicked = true;
+            const value = header_search_input.value;
+            const field_value = header_search_select.getAttribute("data-value");
+
+            // redirect to datatable section
+            window.location.href = "#datatable";
+
+            // get current filter
+            const current_filter = table.getFilters();
+
+            if(current_filter.length > 0)
+                if(field_value === "all fields"){
+                    table.addFilter([[{field: "title", type: "like", value: value}, 
+                        {field: "application", type: "like", value: value},
+                        {field: "advantages", type: "like", value: value},
+                        {field: "limitations", type: "like", value: value}
+                        
+                    ]]);
+                }else{
+                    table.addFilter(field_value, "like", value);
+                }
+            else{
+                if(field_value === "all fields"){
+                    table.setFilter([[{field: "title", type: "like", value: value}, 
+                        {field: "application", type: "like", value: value},
+                        {field: "advantages", type: "like", value: value},
+                        {field: "limitations", type: "like", value: value}
+                        
+                    ]]);
+                }else{
+                    table.setFilter(field_value, "like", value);
+                }
+            }
+
+            
+        }
+
+        // handle if enter is clicked
+        header_search_input.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                const value = event.target.value;
+                const field_value = header_search_select.getAttribute("data-value");
+
+                // redirect to datatable section
+                window.location.href = "#datatable";
+                console.log(value);
+
+                // get current filter
+                const current_filter = table.getFilters();
+
+                if(current_filter.length > 0)
+                    if(field_value === "all fields"){
+                        table.addFilter([[{field: "title", type: "like", value: value}, 
+                            {field: "application", type: "like", value: value},
+                            {field: "advantages", type: "like", value: value},
+                            {field: "limitations", type: "like", value: value}
+                            
+                        ]]);
+                    }else{
+                        table.addFilter(field_value, "like", value);
+                    }
+                else{
+                    if(field_value === "all fields"){
+                        table.setFilter([[{field: "title", type: "like", value: value}, 
+                            {field: "application", type: "like", value: value},
+                            {field: "advantages", type: "like", value: value},
+                            {field: "limitations", type: "like", value: value}
+                            
+                        ]]);
+                    }else{
+                        table.setFilter(field_value, "like", value);
+                    }
+                }
+    
+                
+            }
+        });
+
+        table.on("dataFiltered", function(filters, rows){
+            
+        })
+    });
+
 }
+
+/**
+ * Function that fills the filter options container.
+ * @param {HTMLElement} container 
+ * @param {string} table_col
+ * @param {*} data
+ */
+function fillOptionsContainer(container, table_col, data){
+
+    // get frequencies
+    const freqs = getColumnValueFrequencies(table_col, data);
+
+    // get unique values for column
+    var unique_values = [...new Set(data.map(row => row[table_col]))];
+
+    // combine unique values with their frequencies
+    const combined = unique_values.map(value => ({
+        value: value,
+        frequency: freqs[value]
+    }));
+    
+    // sort the combined data by frequency in descending order
+    const combined_sorted = combined.sort((a, b) => b.frequency - a.frequency);
+    
+
+    // create checkbox for each value and add it to options container
+    combined_sorted.forEach(entry =>{
+        let value = entry.value;
+        const freq = entry.frequency;
+
+        if (Number.isInteger(value)){
+            value = value.toString(); // important for years which are int 
+        }
+
+        const checkbox_el = `<div class="checkbox" data-value="${value}">
+                                <input type="checkbox" name="${value.toLowerCase()}" id="${value.toLowerCase()}">
+                                <label for="${value.toLowerCase()}">${value} <span class="count">${freq}</span></label>
+                            </div>`;
+        
+        container.insertAdjacentHTML('beforeend', checkbox_el);                   
+    });
+
+
+}
+
+function updateCheckboxes(container, table_col, new_data) {
+
+    var unique_values = [...new Set(new_data.map(row => row[table_col]))];
+
+    // Loop through each checkbox and enable/disable based on whether the value is in the visible data
+    container.querySelectorAll('.checkbox').forEach(checkbox => {
+        const value = checkbox.getAttribute("data-value");
+        const checkboxInput = checkbox.querySelector("input[type='checkbox']");
+        const label = checkbox.querySelector("label");
+
+        // Enable checkbox if the value exists in the filtered data, otherwise disable it
+        if (unique_values.includes(value)) {
+            checkbox.disabled = false; // Enable the entire div
+            checkboxInput.disabled = false; // Enable the checkbox input
+        } else {
+            checkbox.disabled = true; // Disable the entire div
+            checkboxInput.disabled = true; // Disable the checkbox input
+        }
+
+        // get frequencies
+        const freqs = getColumnValueFrequencies(table_col, new_data);
+
+        // Optionally update the count of values in the label
+        const countSpan = label.querySelector(".count");
+        const count = freqs[value];
+        countSpan.textContent = count; // Update the count in the label
+    });
+    
+}
+
+/**
+ * Function that returns a dictionary of a value and its frequency inside a data column.
+ * @param {string} table_col 
+ * @param {*} data 
+ * 
+ * @returns {}
+ */
+function getColumnValueFrequencies(table_col, data) {
+    const frequency = {};
+
+    data.forEach(row => {
+        var value = row[table_col];
+        if (frequency[value]) {
+            frequency[value] += 1;
+        } else {
+            frequency[value] = 1;
+        }
+    });
+
+    return frequency;
+}
+
+let selected_filter = [];
+
+
+/**
+ * Function activates the checkboxes by adding an eventlistener.
+ * @param {HTMLElement} options_container 
+ * @param {*} table_col 
+ * @param {*} table 
+ */
+function activateCheckboxFilter(options_container, table_col, table ){
+
+    const checkboxes = options_container.childNodes;
+
+    let values = [];
+
+    checkboxes.forEach(box => {
+
+        box.addEventListener('change', event => {
+            
+            const value = box.getAttribute("data-value");
+
+            if (event.target.checked) {
+                
+                if (!selected_filter.includes(value)) {
+                    // add filter if not included yet
+                    values.push(value);
+                    const existingFilter = selected_filter.find(filter => filter.field === table_col);
+
+                    if (existingFilter) {
+                        existingFilter.value = values;
+                        existingFilter.type = "in";
+                    }else{
+                        selected_filter.push({"field": table_col,"type": "=", "value":value});
+                    }
+                    
+                }
+            } else {
+                // remove the value from the selected values array if unchecked
+                
+                values = values.filter(item => !(item === value))
+                if (values.length < 1){
+                    selected_filter = selected_filter.filter(item => !(item.field === table_col));
+                }else{
+                    selected_filter = selected_filter.filter(item => !(item.field === table_col));
+                    if(values.length > 1){
+                        selected_filter.push({"field": table_col,"type": "in", "value":values});
+                    }else{
+                        selected_filter.push({"field": table_col,"type": "=", "value":values[0]});
+                    }
+                    
+                }
+
+                
+            }
+
+            // if there are selected values, set the filter for or selected checkboxes
+            if (selected_filter.length > 0) {
+
+                table.setFilter(selected_filter);
+                // const select = options_container.parentNode.previousElementSibling;
+                // select.classList.add("active-filter");
+
+                // table.on("dataFiltered", function(filters, rows){
+                //     console.log(filters)
+            
+            
+                //     if(filters.length > 0){
+                //         const data = rows.map(row => row.getData());
+
+                //         const group_options_container = document.querySelector("#group-filter .filter-options .options-container");
+                //         const subgroup_options_container = document.querySelector("#subgroup-filter .filter-options .options-container");
+                //         const model_options_container = document.querySelector("#model-filter .filter-options .options-container");
+                //         const cell_origin_options_container = document.querySelector("#cell-origin-filter .filter-options .options-container");
+                //         const year_options_container = document.querySelector("#year-filter .filter-options .options-container");
+                //         const journal_options_container = document.querySelector("#journal-filter .filter-options .options-container");
+            
+                //         updateCheckboxes(group_options_container, "group", data);
+                //         updateCheckboxes(subgroup_options_container, "subgroup", data)
+                //         updateCheckboxes(model_options_container, "model", data);
+                //         updateCheckboxes(cell_origin_options_container, "cell_origin", data);
+                //         updateCheckboxes(year_options_container, "year", data);
+                //         updateCheckboxes(journal_options_container, "journal", data);
+                        
+                //     }
+                // })
+
+            } else {
+                // if no checkboxes are selected, reset the filter
+                table.clearFilter();
+                // const select = options_container.parentNode.previousElementSibling;
+                // select.classList.remove("active-filter");
+
+            }
+        });
+
+    });
+
+    
+}
+
+/**
+ * Function that adds or remove the active filter atribute of select elements depending on if any or no checkboxes are ticked
+ * @param {HTMLElement} options_container 
+ */
+function colorSelectedFilter(options_container){
+    options_container.addEventListener('change', (event) => {
+        const target = event.target;
+    
+        if (target.matches('input[type="checkbox"]')) {
+
+            const active_checkboxes = options_container.querySelectorAll('input[type="checkbox"]:checked');
+
+            const values = Array.from(active_checkboxes).map(box => box.id);
+    
+            const select = options_container.parentNode.previousElementSibling;
+
+            if(values.length > 0){
+                select.classList.add("active-filter");
+            }else{
+                select.classList.remove("active-filter");
+            }
+        }
+    });
+}
+
+/**
+ * Function activates the search element by adding an eventlistener.
+ * @param {HTMLElement} options_container 
+ * @param {HTMLElement} search
+ */
+function activateFilterSearch(options_container, search){
+
+    search.addEventListener("input", (event) => {
+        const input = event.target.value;
+        const checkboxes = options_container.querySelectorAll("input");
+
+        checkboxes.forEach(checkbox =>{
+            const id = checkbox.id;
+            if (!id.startsWith(input) && !id.includes(input)){
+                checkbox.parentElement.style.display = "none";
+            }else{
+                checkbox.parentElement.style.display = "flex";
+            }
+
+        });
+    });
+
+}
+
+
 //#endregion Functions for Section Datatable
 
 //#region Functions for Section Abbreviation

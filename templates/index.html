@@ -44,7 +44,7 @@
 
 
                 <div class="select-wrapper">
-                    <div class="select">
+                    <div class="select" data-value="All Fields">
                       <div class="select-text-field">
                         All Fields
                       </div>
@@ -169,6 +169,162 @@
 
         <section id="datatable">
             <h2>Dataset</h2>
+            <div id="table-filters">
+                <div class="select-wrapper" id="group-filter">
+                    <div class="select">
+                      <div class="select-text-field">
+                        Group
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <div id="group-search" class="search">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
+                            </div>
+                            <button class="close-btn" type="button" aria-label="Search">
+                                <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-container"></div>
+                    </div>  
+                </div>
+
+                <div class="select-wrapper" id="subgroup-filter">
+                    <div class="select">
+                      <div class="select-text-field">
+                        Subgroup
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <div id="subgroup-search" class="search">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
+                            </div>
+                            <button class="close-btn" type="button" aria-label="Search">
+                                <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-container"></div>
+                    </div>  
+                </div>
+
+                <div class="select-wrapper" id="focus-filter">
+                    <div class="select">
+                      <div class="select-text-field">
+                        Focus
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <div id="focus-search" class="search">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
+                            </div>
+                            <button class="close-btn" type="button" aria-label="Search">
+                                <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-container"></div>
+                    </div>  
+                </div>
+
+                <div class="select-wrapper" id="model-filter">
+                    <div class="select">
+                      <div class="select-text-field">
+                        Model
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <div id="model-search" class="search">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
+                            </div>
+                            <button class="close-btn" type="button" aria-label="Search">
+                                <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-container"></div>
+                    </div>  
+                </div>
+
+                <div class="select-wrapper" id="cell-origin-filter">
+                    <div class="select">
+                      <div class="select-text-field">
+                        Cell Origin
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <div id="cell-origin-search" class="search">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
+                            </div>
+                            <button class="close-btn" type="button" aria-label="Search">
+                                <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-container"></div>
+                    </div>  
+                </div>
+
+                <div class="select-wrapper" id="year-filter">
+                    <div class="select">
+                      <div class="select-text-field">
+                        Year
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <div id="year-search" class="search">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
+                            </div>
+                            <button class="close-btn" type="button" aria-label="Search">
+                                <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-container"></div>
+                    </div>  
+                </div>
+
+                <div class="select-wrapper" id="journal-filter">
+                    <div class="select">
+                      <div class="select-text-field">
+                        Journal
+                      </div>
+                      <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <div id="journal-search" class="search">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
+                                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
+                            </div>
+                            <button class="close-btn" type="button" aria-label="Search">
+                                <i class="fa-solid fa-xmark" aria-disabled="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-container"></div>
+                    </div>  
+                </div>
+
+            </div>
             <div id="table-container">
 
             </div>
@@ -239,7 +395,7 @@
 
                 </div>
 
-                <div id="abbr-search">
+                <div id="abbr-search" class="search">
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass" aria-disabled="true"></i>
                         <input type="text" name="Search" placeholder="Search Abbreviations..." aria-placeholder="Search Abbreviations..." class="search-input">
@@ -293,6 +449,8 @@
         
 
     </main>
+
+    
 
     <!-- Axios Script v1.8.4 -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
