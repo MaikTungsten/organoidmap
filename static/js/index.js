@@ -427,6 +427,8 @@ async function initializeMainPage() {
     });
 
 
+
+
     // create data table
     createDataTable(large_table);
 
@@ -443,7 +445,7 @@ async function initializeMainPage() {
     const all_button = document.getElementById("all");
     const a_button = document.getElementById("a");
     const abbr_search_input = document.querySelector("#abbr-search .search-wrapper input");
-    const abbr_search_close_button = document.querySelector("#abbr-search .close-btn");
+    const abbr_search_close_button = document.querySelector("#abbr-search .clear-btn");
 
     let active_button;
 
@@ -729,7 +731,7 @@ function createDataTable(large_table){
         
         // add function to the header search bar 
         const header_search_input = document.querySelector("#header-search input");
-        const header_search_close = document.querySelector("#header-search .close-btn");
+        const header_search_clear_btn = document.querySelector("#header-search .clear-btn");
         const header_search_select = document.querySelector("#header-search .select");
         const header_search_btn = document.querySelector("#header-search #search-btn");
 
@@ -801,11 +803,12 @@ function createDataTable(large_table){
                         table.setFilter([[{field: "title", type: "like", value: value}, 
                             {field: "application", type: "like", value: value},
                             {field: "advantages", type: "like", value: value},
-                            {field: "limitations", type: "like", value: value}
+                            {field: "limitations", type: "like", value: value},
                             
                         ]]);
                     }else{
                         table.setFilter(field_value, "like", value);
+
                     }
                 }
     
@@ -813,13 +816,28 @@ function createDataTable(large_table){
             }
         });
 
+        // handle displaying of clear button based onif user is typing or not
+        header_search_input.addEventListener("input", () => {
+            if(header_search_input.value.length>0){
+                header_search_clear_btn.style.display = "flex";
+            }else{
+                header_search_clear_btn.style.display = "none";
+            }
+        });
+
+        // add function to clear button
+        header_search_clear_btn.onclick = function() {
+            header_search_input.value = '';
+            header_search_clear_btn.style.display = 'none';
+            header_search_input.focus();
+        }
+
         table.on("dataFiltering", function(filters){
 
             console.log(filters);
 
             filters = simplifyFilters(filters);
 
-            
             
             const filtered_data = data.filter(row => {
                 return Object.entries(filters).every(([key, value]) => {
@@ -867,20 +885,21 @@ function createDataTable(large_table){
 
             })
             
+        });
 
-            Object.entries(valid_options).forEach(([name, value]) => {
+        // add functions to the clear filter button
+        const clear_filter_btn = document.getElementById("clear-filter-btn");
+        clear_filter_btn.onclick = function(){
             
-                
-            });
+            // clear all filter
+            table.clearFilter();
 
-            // const filtered_data = large_table.filter(row =>
-            //     ["Neurodegeneration"].includes(row.group)
-            // );
+            // uncheck all checkboxes
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => checkbox.checked = false);
 
-            // console.log(filtered_data);
-
-            // console.log(filters)
-        })
+            // remove all active-filter attributes
+            document.querySelectorAll('.select.active-filter').forEach(select => select.classList.remove("active-filter"));
+        };
     });
 
 }
@@ -895,7 +914,7 @@ function simplifyFilters(tabulatorFilters) {
 
 function getValidFilterOptionsAndFreqs(data){
 
-    const table_cols = ["group", "subgroup", "focus", "model", "cell_origin"]
+    const table_cols = ["group", "subgroup", "focus", "model", "cell_origin", "year", "journal"]
 
 
     const valid_options = Object.assign(
@@ -903,7 +922,6 @@ function getValidFilterOptionsAndFreqs(data){
         ...table_cols.map(col => getColumnValueFrequencies(col, data))
     );
 
-    console.log("valid options", valid_options);
 
     return valid_options;
 
@@ -1069,39 +1087,14 @@ function activateCheckboxFilter(options_container, table_col, table ){
                 
             }
 
-            // if there are selected values, set the filter for or selected checkboxes
+            // // if there are selected values, set the filter for or selected checkboxes
             if (selected_filter.length > 0) {
 
                 table.setFilter(selected_filter);
-                // const select = options_container.parentNode.previousElementSibling;
-                // select.classList.add("active-filter");
-
-                // table.on("dataFiltered", function(filters, rows){
-                //     console.log(filters)
             
-            
-                //     if(filters.length > 0){
-                //         const data = rows.map(row => row.getData());
-
-                //         const group_options_container = document.querySelector("#group-filter .filter-options .options-container");
-                //         const subgroup_options_container = document.querySelector("#subgroup-filter .filter-options .options-container");
-                //         const model_options_container = document.querySelector("#model-filter .filter-options .options-container");
-                //         const cell_origin_options_container = document.querySelector("#cell-origin-filter .filter-options .options-container");
-                //         const year_options_container = document.querySelector("#year-filter .filter-options .options-container");
-                //         const journal_options_container = document.querySelector("#journal-filter .filter-options .options-container");
-            
-                //         updateCheckboxes(group_options_container, "group", data);
-                //         updateCheckboxes(subgroup_options_container, "subgroup", data)
-                //         updateCheckboxes(model_options_container, "model", data);
-                //         updateCheckboxes(cell_origin_options_container, "cell_origin", data);
-                //         updateCheckboxes(year_options_container, "year", data);
-                //         updateCheckboxes(journal_options_container, "journal", data);
-                        
-                //     }
-                // })
-
             } else {
                 // if no checkboxes are selected, reset the filter
+                console.log()
                 table.clearFilter();
                 // const select = options_container.parentNode.previousElementSibling;
                 // select.classList.remove("active-filter");
@@ -1115,10 +1108,12 @@ function activateCheckboxFilter(options_container, table_col, table ){
 }
 
 /**
- * Function that adds or remove the active filter atribute of select elements depending on if any or no checkboxes are ticked
+ * Function that adds or remove the active filter atribute of select elements depending on if any or no checkboxes are ticked, also it hides the clear filter button, if no filters are active
  * @param {HTMLElement} options_container 
  */
 function colorSelectedFilter(options_container){
+    const clear_filter_btn = document.getElementById("clear-filter-btn");
+
     options_container.addEventListener('change', (event) => {
         const target = event.target;
     
@@ -1132,22 +1127,53 @@ function colorSelectedFilter(options_container){
 
             if(values.length > 0){
                 select.classList.add("active-filter");
+                clear_filter_btn.style.display = "flex"
+
             }else{
                 select.classList.remove("active-filter");
+
+                const active_selects = document.querySelectorAll(".select.active-filter");
+                if(active_selects.length === 0){
+                    clear_filter_btn.style.display = "none";
+                }
             }
         }
     });
 }
 
+
+
 /**
  * Function activates the search element by adding an eventlistener.
  * @param {HTMLElement} options_container 
- * @param {HTMLElement} search
+ * @param {HTMLElement} search - Input element
  */
 function activateFilterSearch(options_container, search){
 
+    const clear_btn = options_container.previousElementSibling.querySelector(".clear-btn");
+
+    clear_btn.onclick = function(){
+        search.value = ''; // reset input
+        clear_btn.style.display = 'none'; // hide clear button
+        search.focus(); // put input back in focus
+
+        // show all checkboxes again
+        const checkboxes = options_container.querySelectorAll("input");
+        checkboxes.forEach(checkbox =>{
+            checkbox.parentElement.style.display = "flex";
+        });
+
+    }
+
     search.addEventListener("input", (event) => {
         const input = event.target.value;
+
+        if(input.length>0){
+            clear_btn.style.display = "flex";
+        }else{
+            clear_btn.style.display = "none";
+        }
+
         const checkboxes = options_container.querySelectorAll("input");
 
         checkboxes.forEach(checkbox =>{

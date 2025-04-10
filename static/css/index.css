@@ -95,7 +95,7 @@ i{
     border: none
 }
 
-.close-btn{
+.clear-btn{
     background-color: transparent;
     border: none;
     width: auto;
@@ -104,7 +104,11 @@ i{
     align-items: center;
 }
 
-.close-btn:hover i{
+.clear-btn i{
+    font-size: 1rem;
+}
+
+.clear-btn:hover i{
     color: var(--text);
 }
 
@@ -424,6 +428,23 @@ i{
 #table-filters .select.active-filter{
     background-color: var(--accent);
     border-color: var(--accent);
+}
+
+#table-filters #clear-filter-btn{
+    display: none;
+    color: var(--accent);
+    text-decoration: underline;
+    font-size: 1.25rem;
+    align-self: center;
+
+}
+
+#table-filters #clear-filter-btn:active{
+    transform: scale(0.95);
+}
+
+#table-filters #clear-filter-btn:hover{
+    color: var(--accent-hover);
 }
 
 #table-filters .filter-options{
