@@ -1,3 +1,5 @@
+let active_field;
+
 /**
  * Function to initialize the html page
  */
@@ -87,28 +89,28 @@ async function initializeMainPage() {
     const journals_number_field = document.getElementById("journals-number");
 
     // fetch numbers 
-    const models = await fetch_unique_entries("model");
-    const subgroups = await fetch_unique_entries("subgroup");
-    const focuses = await fetch_unique_entries("focus");
-    const journals = await fetch_unique_entries("journal");
+    const models_unique = await fetch_unique_entries("model");
+    const subgroups_unique = await fetch_unique_entries("subgroup");
+    const focuses_unique = await fetch_unique_entries("focus");
+    const journals_unique = await fetch_unique_entries("journal");
 
     // set number of papers
     papers_number_field.setAttribute("target", large_table.length );
     papers_number_field.innerText = Math.max(large_table.length - (Math.round(large_table.length*0.25)), 0);
 
-    models_number_field.setAttribute("target", models.length );
-    models_number_field.innerText = Math.max(models.length - (Math.round(models.length*0.25)), 0);
+    models_number_field.setAttribute("target", models_unique.length );
+    models_number_field.innerText = Math.max(models_unique.length - (Math.round(models_unique.length*0.25)), 0);
 
-    subgroups_number_field.setAttribute("target", subgroups.length );
-    subgroups_number_field.innerText = subgroups.length - (Math.round(subgroups.length*0.25));
+    subgroups_number_field.setAttribute("target", subgroups_unique.length );
+    subgroups_number_field.innerText = subgroups_unique.length - (Math.round(subgroups_unique.length*0.25));
 
-    focuses_number_field.setAttribute("target", focuses.length );
-    focuses_number_field.innerText = Math.max(focuses.length - (Math.round(focuses.length*0.25)), 0);
+    focuses_number_field.setAttribute("target", focuses_unique.length );
+    focuses_number_field.innerText = Math.max(focuses_unique.length - (Math.round(focuses_unique.length*0.25)), 0);
 
-    journals_number_field.setAttribute("target", journals.length );
-    journals_number_field.innerText = Math.max(journals.length - (Math.round(journals.length*0.25)), 0);
+    journals_number_field.setAttribute("target", journals_unique.length );
+    journals_number_field.innerText = Math.max(journals_unique.length - (Math.round(journals_unique.length*0.25)), 0);
 
-    console.log(subgroups.length)
+    console.log(subgroups_unique.length)
 
 
 
@@ -128,6 +130,244 @@ async function initializeMainPage() {
 
     papers_span.textContent = large_table.length;
     
+    
+    function prepareSunburstData(data, col1, col2){
+
+        const freqs_col1 = getColumnValueFrequencies(col1, data);
+        const freqs_col2 = getColumnValueFrequencies(col2, data);
+
+        const sunburst_data = [];
+
+        const col1_unique_values = [...new Set(data.map(row => row[col1]))];
+        
+        // first create data strutcure
+        col1_unique_values.forEach(value => {
+
+            // add parent node (col1) 
+
+            sunburst_data.push ({
+                name: value,
+                ...(freqs_col1[value] && { value: freqs_col1[value] }),
+                children: new Map()  // map to keep unique children only
+            });
+        });
+
+        console.log(sunburst_data)
+        
+        // add children
+        data.forEach(row => {
+            const col1_value = row[col1];
+            const col2_value = row[col2];
+
+            if (col1_value && col2_value) {
+                // get parent in the array
+                const parent = sunburst_data.find(row => row.name === col1_value);
+                
+                if (parent) {
+                    const col2_count = freqs_col2[col2_value];
+                    
+                    if (!parent.children.has(col2_value)) {
+                        parent.children.set(col2_value, {
+                            name: col2_value,
+                            ...(col2_count && { value: col2_count })
+                        });
+                    }
+                }
+            }
+        });
+        
+        // convert maps to arrays 
+        sunburst_data.forEach(parent => {
+            parent.children = Array.from(parent.children.values());
+        });
+        
+        return sunburst_data;
+
+    }
+
+    function createSunburst(container_id, sunburst_data, title){
+
+        var container = document.getElementById(container_id);
+        var chart = echarts.init(container);
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            chart.resize();
+          })
+        resizeObserver.observe(container);
+        
+
+        var option = {
+            title: {
+                text: title,
+                textStyle: {
+                  fontSize: 14,
+                  align: 'center'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove'
+            },
+            series: {
+                type: 'sunburst',
+                // emphasis: {
+                //     focus: 'ancestor'
+                // },
+                data: sunburst_data,
+                radius: ['10%', '100%'],
+                label: {
+                    rotate: 'radial',
+                    fontSize: 12,
+                },
+                itemStyle: {
+                    borderColor: '#fff',
+                    borderWidth: 1, 
+                    borderRadius:7, 
+                }
+            }
+            
+        };
+
+        option && chart.setOption(option);
+    }
+
+    // const sunburst_data = prepareSunburstData(large_table, "group", "subgroup")
+    // console.log(sunburst_data)
+
+    // createSunburst("sunburst-group", sunburst_data, "Title")
+
+    function createVisualizations(data){
+        const group_container = document.getElementById("group-pie");
+        const subgroup_container = document.getElementById("subgroup-pie");
+        const focus_container = document.getElementById("focus-pie");
+        const model_container = document.getElementById("model-pie");
+        const cell_origin_container = document.getElementById("cell-origin-pie");
+
+        const all_cont = [group_container, subgroup_container, focus_container, model_container, cell_origin_container];
+
+        const [group_chart, subgroup_chart, focus_chart, model_chart, cell_origin_chart] = all_cont.map(cont => echarts.init(cont));
+
+        const group_data = returnPieData(getColumnValueFrequencies("group", data));
+        const subgroup_data = returnPieData(getColumnValueFrequencies("subgroup", data));
+        const focus_data = returnPieData(getColumnValueFrequencies("focus", data));
+        const model_data = returnPieData(getColumnValueFrequencies("model", data));
+        const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", data));
+
+        // const threshold = 5; (percentage)
+        // const group_condensed = condenseData(group_data, threshold);
+        // const subgroup_condensed = condenseData(subgroup_data, threshold);
+        // const focus_condensed = condenseData(focus_data, threshold);
+        // const model_condensed = condenseData(model_data, threshold);
+        // const cell_origin_condensed = condenseData(cell_origin_data, threshold);
+        
+        const options = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)'
+            },
+            legend: {
+                top: '5%',
+                left: 'center',
+                data: []
+            },
+            series: [
+                {
+                    name: 'Categories',
+                    type: 'pie',
+                    radius: ['0%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: []
+                }
+            ]
+        };
+
+        
+        updateChart(group_chart, group_data, options, "Groups");
+        updateChart(subgroup_chart, subgroup_data, options, "Subgroups");
+        updateChart(focus_chart, focus_data, options, "Focuses");
+        updateChart(model_chart, model_data, options, "Models");
+        updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin");
+    
+
+    }
+
+    function updateChart(chart, data, options, title) {
+       
+        options.series[0].data = data;
+        options.title = {
+            text: title,
+            left: 'center'
+        };
+
+        options.series[0].center = ['25%', '50%'];
+
+        options.legend = {
+            type: 'scroll',  
+            orient: 'vertical', 
+            left: 'right',  
+            top: 'middle',
+            pageButtonItemGap:1, 
+            pageButtonPosition: 'end', 
+            padding: [0, 50, 0, 0]
+        };
+    
+
+        
+        options.legend.data = data.map(item => item.name);
+        chart.setOption(options, true);
+    }
+
+
+    // Function to convert the data in the correct format for pie charts
+    function returnPieData(col_value_freq_data){
+
+        const data = [];
+
+        Object.entries(col_value_freq_data).forEach(([name, value]) => {
+            
+            data.push({value: value, name: name})
+        });
+
+        return data;
+    }
+
+    function condenseData(data, threshold) {
+        let condensed_data = [];
+        let other_value = 0;
+        let other = 'Other';
+    
+        // split data into large and small categories
+        let large_data = data.filter(item => item.value >= threshold);
+        let small_data = data.filter(item => item.value < threshold);
+    
+        // sum small categories and create "other" category
+        small_data.forEach(item => {
+            other_value += item.value;
+        });
+    
+        if (other_value > 0) {
+            condensed_data.push({ name: other, value: other_value });
+        }
+    
+        // combine large categories and "other" 
+        condensed_data = condensed_data.concat(large_data);
+    
+        return condensed_data;
+    }
+    
+
+    
+
+    createVisualizations(large_table)
+
+
     //#endregion About
 
 
@@ -162,10 +402,14 @@ async function initializeMainPage() {
             const isOpen = options.style.display === "flex";
 
             if (isOpen) {
+                active_field = null;
+
                 options.style.display = "none";
                 select.classList.remove("open");
                 open_option = null;
             } else {
+                active_field = select.parentNode.id;
+
                 options.style.display = "flex";
                 select.classList.add("open");
                 open_option = options;
@@ -569,11 +813,109 @@ function createDataTable(large_table){
             }
         });
 
-        table.on("dataFiltered", function(filters, rows){
+        table.on("dataFiltering", function(filters){
+
+            console.log(filters);
+
+            filters = simplifyFilters(filters);
+
             
+            
+            const filtered_data = data.filter(row => {
+                return Object.entries(filters).every(([key, value]) => {
+                  if (Array.isArray(value)) {
+                    return value.includes(row[key]);
+                  }
+                  return row[key] === value;
+                });
+            });
+
+            const valid_options = getValidFilterOptionsAndFreqs(filtered_data);
+
+            const checkboxes = document.querySelectorAll(".checkbox");
+
+            checkboxes.forEach(box => {
+                const box_value = box.getAttribute("data-value");
+                const box_span = box.querySelector("span");
+
+                if (box_value in valid_options){
+                    box.disabled = false; 
+                    box_span.textContent = valid_options[box_value];
+                } else{
+                    box.disabled = true; 
+                    box_span.textContent = "0";
+
+                }
+            })
+
+            const containers = document.querySelectorAll('.options-container');
+
+            containers.forEach(container => {
+                const boxes = Array.from(container.querySelectorAll('.checkbox'));
+
+                // Sort the checkbox divs based on the number in their .count span
+                boxes.sort((a, b) => {
+                    const countA = parseInt(a.querySelector('.count').textContent);
+                    const countB = parseInt(b.querySelector('.count').textContent);
+                    return countB - countA; // Descending order
+                });
+
+                // Re-append them in sorted order
+                boxes.forEach(checkbox => container.appendChild(checkbox));
+
+        
+
+            })
+            
+
+            Object.entries(valid_options).forEach(([name, value]) => {
+            
+                
+            });
+
+            // const filtered_data = large_table.filter(row =>
+            //     ["Neurodegeneration"].includes(row.group)
+            // );
+
+            // console.log(filtered_data);
+
+            // console.log(filters)
         })
     });
 
+}
+
+function simplifyFilters(tabulatorFilters) {
+    const result = {};
+    tabulatorFilters.forEach(filter => {
+      result[filter.field] = filter.value;
+    });
+    return result;
+  }
+
+function getValidFilterOptionsAndFreqs(data){
+
+    const table_cols = ["group", "subgroup", "focus", "model", "cell_origin"]
+
+
+    const valid_options = Object.assign(
+        {},
+        ...table_cols.map(col => getColumnValueFrequencies(col, data))
+    );
+
+    console.log("valid options", valid_options);
+
+    return valid_options;
+
+    // const result = {};
+
+    // for (const col of table_cols) {
+    //     // For the active filter, always use the full dataset
+    //     const source = col === active_field ? rawData : data;
+    //     result[col] = getColumnValueFrequencies(col, source);
+    // }
+
+    // return result;
 }
 
 /**

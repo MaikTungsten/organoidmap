@@ -355,10 +355,42 @@ i{
 
 
 /*#region -- about -- */
+.about-organoidmap-wrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    height: max-content;
+    min-height: 400px;
+}
 
+#about-organoidmap{
+    width: 40%;
+}
+
+
+#group-pie{
+    width: 40%;
+    height: 300px;
+}
 /*#endregion */
 
+/*#region -- visualizations --  */
+#visualizations{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    height: fit-content;
+    min-height: 400px;
+    gap: 4rem;
+}
 
+#visualizations .pie-container{
+    width: 45%;
+    height: 320px;
+}
 
 /*#region -- datatable -- */
 #table-filters{

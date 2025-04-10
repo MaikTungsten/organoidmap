@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OrganoidMap</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="static/logo_organoidmap_flavicon.webp" type="image/x-icon">
+    <link rel="icon" href="static/logo_organoidmap_flavicon.webp" type="image/png">
+
     <!-- Tabulator Stylesheet -->
     
     <link href="https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator_bulma.min.css" rel="stylesheet">
@@ -20981,9 +20985,7 @@
                     <p>With OrganoidMap, we aim to provide a straightforward, broadly accessible tool suitable for everyone interested in cerebral organoids — whether you’re a beginner or an expert, this tool helps you navigate the growing and complex landscape of cerebral organoid research.</p>
                 </div>
 
-                <div class="sunburst-group">
-
-                </div>
+                <div id="group-pie" class="pie-container"></div>
             </div>
 
             <div class="about-section" id="vision">
@@ -21025,7 +21027,10 @@
         </section>
 
         <section id="visualizations">
-
+            <div id="subgroup-pie" class="pie-container"></div>
+            <div id="focus-pie" class="pie-container"></div>
+            <div id="model-pie" class="pie-container"></div>
+            <div id="cell-origin-pie" class="pie-container"></div>
         </section>
 
         <section id="datatable">
