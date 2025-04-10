@@ -9,7 +9,7 @@
     --subtext: #505050;
     --search-icon: #757575;
     --search-background: #EBEBEB;
-    --blue-filter: rgba(16, 52, 86, 0.68); 
+    --blue-filter: rgba(14, 38, 79, 0.75); 
 
 }
 
@@ -55,11 +55,17 @@ body{
     scroll-behavior: smooth;
 }
 
+main{
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+}
+
 section{
     display: flex;
     flex-direction: column;
     padding: 0 2rem;
-    
+    box-sizing: border-box;   
 }
 
 input {
@@ -174,14 +180,45 @@ i{
 .header{
     display: flex;
     flex-direction: column;
+    gap: 3rem;
+    width: 100%;
+    padding: 0;
+}
+
+.header-background{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #A9C3DA;
     gap: 4rem;
-    background-color: var(--blue-filter);
+    padding: 4rem 0 8rem 0;
+    background-image: 
+        linear-gradient(var(--blue-filter)),
+        url("/static/header.webp");
+        background-blend-mode: multiply;
+    background-size: cover;
+    background-repeat: no-repeat ;
+    background-position: center;
+
+}
+
+.header-background .display-2{
+    text-align: center;
+}
+
+
+
+.header-background svg{
+    width: 80%;
 }
 
 
 
 
+
 #header-search{
+    margin-top: -5rem;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -287,6 +324,11 @@ i{
     align-items: center;
     justify-content: space-evenly;
     padding: 24px 0px;
+}
+
+#stats-wrapper .vertical-seperator{
+    height: 60px;
+    width: 0.5px;
 }
 
 .stat{
@@ -444,13 +486,14 @@ i{
 
 
 /*#region -- abbreviations -- */
+
 #abbreviations-wrapper{
     display: flex;
     flex-direction: column;
-    width: fit-content;
-    gap: 2rem;
+    width: 94%;
+    gap: 3rem;
     align-self: center;
-    padding: 3rem;
+    padding: 2rem;
     background:
     linear-gradient(to right, var(--primary) 3px, transparent 3px) 0 0,
     linear-gradient(to right, var(--primary) 3px, transparent 3px) 0 100%,
@@ -559,11 +602,23 @@ i{
     box-sizing: border-box;
 }
 
+#footer a{
+    color: white;
+}
+
+#footer a:hover{
+    color: var(--accent);
+}
+
+#footer .about{
+    width: 40%;
+}
+
 #top-row{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     
 }
@@ -597,14 +652,16 @@ i{
 
 }
 
-/* TODO: footer-logo rauslöschen wenn logo drin ist */
-#footer-logo{
+.footer-logo{
     width: 200px;
-    height: 100px;
-    background-color: beige;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.footer-logo img{
+    width: 100%;
 }
 
 /*#endregion  */
