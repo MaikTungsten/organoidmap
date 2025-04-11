@@ -245,13 +245,15 @@ async function initializeMainPage() {
 
         const all_cont = [group_container, subgroup_container, focus_container, model_container, cell_origin_container];
 
-        const [group_chart, subgroup_chart, focus_chart, model_chart, cell_origin_chart] = all_cont.map(cont => echarts.init(cont));
+        const [group_chart, subgroup_chart, focus_chart, model_chart, cell_origin_chart] = all_cont.map(cont => 
+            echarts.init(cont)
+        );
 
-        const group_data = returnPieData(getColumnValueFrequencies("group", data));
-        const subgroup_data = returnPieData(getColumnValueFrequencies("subgroup", data));
-        const focus_data = returnPieData(getColumnValueFrequencies("focus", data));
-        const model_data = returnPieData(getColumnValueFrequencies("model", data));
-        const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", data));
+        const group_data_init = returnPieData(getColumnValueFrequencies("group", data));
+        const subgroup_data_init = returnPieData(getColumnValueFrequencies("subgroup", data));
+        const focus_data_init = returnPieData(getColumnValueFrequencies("focus", data));
+        const model_data_init = returnPieData(getColumnValueFrequencies("model", data));
+        const cell_origin_data_init = returnPieData(getColumnValueFrequencies("cell_origin", data));
 
         // const threshold = 5; (percentage)
         // const group_condensed = condenseData(group_data, threshold);
@@ -283,28 +285,212 @@ async function initializeMainPage() {
                     labelLine: {
                         show: false
                     },
-                    data: []
+                    data: [], 
+                    clockwise: false
                 }
             ]
         };
 
+        // const orange_options = {
+        //     tooltip: {
+        //         trigger: 'item',
+        //         formatter: '{a} <br/>{b}: {c} ({d}%)'
+        //     },
+        //     legend: {
+        //         top: '5%',
+        //         left: 'center',
+        //         data: []
+        //     },
+        //     color: [
+        //         "#df6d30","#ff9454", "#4a0000", "#a43c00", "#c95b1e", "#ffb574", 
+        //         "#8c2800", "#fb8446", "#ffd491", "#d56528", "#ee7a3c", 
+        //         "#e26f32", "#bd5113", "#690300", "#5a0000", "#983200", 
+        //        "#750f00", "#811c00", "#b14707", "#ff9645", "#ffc583"
+        //     ],
+        //     series: [
+        //         {
+        //             name: 'Categories',
+        //             type: 'pie',
+        //             radius: ['0%', '70%'],
+        //             avoidLabelOverlap: false,
+        //             label: {
+        //                 show: false,
+        //                 position: 'center'
+        //             },
+        //             labelLine: {
+        //                 show: false
+        //             },
+        //             data: [], 
+        //             clockwise: false
+        //         }
+        //     ]
+        // };
+
         
-        updateChart(group_chart, group_data, options, "Groups");
-        updateChart(subgroup_chart, subgroup_data, options, "Subgroups");
-        updateChart(focus_chart, focus_data, options, "Focuses");
-        updateChart(model_chart, model_data, options, "Models");
-        updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin");
-    
+        updateChart(group_chart, group_data_init, options, "Groups", "Group");
+        updateChart(subgroup_chart, subgroup_data_init, options, "Subgroups", "Subgroup");
+        updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
+        updateChart(model_chart, model_data_init, options, "Models", "Model");
+        updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
+
+        // handle user interaction with charts
+        group_chart.on('click', function(params) {
+
+            const reset_btn = group_chart._dom.previousElementSibling;
+
+            reset_btn.onclick = function(){
+                updateChart(group_chart, group_data_init, options, "Groups", "Group");
+                updateChart(subgroup_chart, subgroup_data_init, options, "Subgroups", "Subgroup");
+                updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
+                updateChart(model_chart, model_data_init, options, "Models", "Model");
+                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
+
+                reset_btn.style.display = "none";
+            }
+            reset_btn.style.display = "flex";
+
+            const chart_name = params.seriesName.toLowerCase();
+            const clicked_value = params.name;
+
+          
+            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
+
+            const group_data = returnPieData(getColumnValueFrequencies("group", filtered_data));
+            const subgroup_data = returnPieData(getColumnValueFrequencies("subgroup", filtered_data));
+            const focus_data = returnPieData(getColumnValueFrequencies("focus", filtered_data));
+            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
+            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
+
+
+            updateChart(group_chart, group_data, options, "Groups", "Group");
+            updateChart(subgroup_chart, subgroup_data, options, "Subgroups", "Subgroup");
+            updateChart(focus_chart, focus_data, options, "Focuses", "Focus");
+            updateChart(model_chart, model_data, options, "Models", "Model");
+            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
+        });
+
+        subgroup_chart.on('click', function(params) {
+
+            const reset_btn = subgroup_chart._dom.previousElementSibling;
+
+            reset_btn.onclick = function(){
+                updateChart(subgroup_chart, subgroup_data_init, options, "Subgroups", "Subgroup");
+                updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
+                updateChart(model_chart, model_data_init, options, "Models", "Model");
+                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
+
+                reset_btn.style.display = "none";
+            }
+            reset_btn.style.display = "flex";
+
+            const chart_name = params.seriesName.toLowerCase();
+            const clicked_value = params.name;
+
+          
+            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
+
+            const subgroup_data = returnPieData(getColumnValueFrequencies("subgroup", filtered_data));
+            const focus_data = returnPieData(getColumnValueFrequencies("focus", filtered_data));
+            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
+            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
+
+            updateChart(subgroup_chart, subgroup_data, options, "Subgroups", "Subgroup");
+            updateChart(focus_chart, focus_data, options, "Focuses", "Focus");
+            updateChart(model_chart, model_data, options, "Models", "Model");
+            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
+        });
+
+        focus_chart.on('click', function(params) {
+
+            const reset_btn = focus_chart._dom.previousElementSibling;
+
+            reset_btn.onclick = function(){
+                updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
+                updateChart(model_chart, model_data_init, options, "Models", "Model");
+                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
+
+                reset_btn.style.display = "none";
+            }
+            reset_btn.style.display = "flex";
+
+            const chart_name = params.seriesName.toLowerCase();
+            const clicked_value = params.name;
+
+          
+            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
+
+            const focus_data = returnPieData(getColumnValueFrequencies("focus", filtered_data));
+            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
+            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
+
+            updateChart(focus_chart, focus_data, options, "Focuses", "Focus");
+            updateChart(model_chart, model_data, options, "Models", "Model");
+            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
+        });
+
+        model_chart.on('click', function(params) {
+
+            const reset_btn = model_chart._dom.previousElementSibling;
+
+            reset_btn.onclick = function(){
+                updateChart(model_chart, model_data_init, options, "Models", "Model");
+                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
+
+                reset_btn.style.display = "none";
+            }
+            reset_btn.style.display = "flex";
+
+            const chart_name = params.seriesName.toLowerCase();
+            const clicked_value = params.name;
+
+          
+            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
+
+            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
+            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
+
+            updateChart(model_chart, model_data, options, "Models", "Model");
+            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
+        });
+
+        cell_origin_chart.on('click', function(params) {
+
+            const reset_btn = cell_origin_chart._dom.previousElementSibling;
+
+            reset_btn.onclick = function(){
+                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
+
+                reset_btn.style.display = "none";
+            }
+            reset_btn.style.display = "flex";
+
+            const chart_name = params.seriesName.toLowerCase();
+            const clicked_value = params.name;
+
+          
+            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
+
+            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
+
+            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
+        });
+
+
 
     }
+    
 
-    function updateChart(chart, data, options, title) {
+    function updateChart(chart, data, options, title, chart_name) {
        
         options.series[0].data = data;
         options.title = {
             text: title,
-            left: 'center'
+            left: '25%', 
+            top: 'top',  
+            textAlign: 'center'
         };
+
+        options.series[0].name = chart_name;
 
         options.series[0].center = ['25%', '50%'];
 
@@ -315,7 +501,7 @@ async function initializeMainPage() {
             top: 'middle',
             pageButtonItemGap:1, 
             pageButtonPosition: 'end', 
-            padding: [0, 50, 0, 0]
+            padding: [0, 0, 0, 0]
         };
     
 
@@ -334,6 +520,11 @@ async function initializeMainPage() {
             
             data.push({value: value, name: name})
         });
+
+        // sort the data descending by value
+        data.sort((a, b) => b.value - a.value);
+
+        console.log(data)
 
         return data;
     }
@@ -361,8 +552,6 @@ async function initializeMainPage() {
     
         return condensed_data;
     }
-    
-
     
 
     createVisualizations(large_table)
