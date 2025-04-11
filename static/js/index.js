@@ -1,13 +1,19 @@
 let active_field;
+let table;
+
+
+// Access the value of CSS variables
+const inactive_color = getComputedStyle(document.documentElement).getPropertyValue('--inactive');
+const text_color = getComputedStyle(document.documentElement).getPropertyValue('--text');
+const subtext_color = getComputedStyle(document.documentElement).getPropertyValue('--subtext');
 
 /**
- * Function to initialize the html page
+ * Function to initialize the main html page
  */
 async function initializeMainPage() {
 
-
+    // fetch data 
     const grouped_abbreviations = await fetch_abbreveations();
-
     const large_table = await fetch_large_table();
 
     //#region Header
@@ -110,18 +116,8 @@ async function initializeMainPage() {
     journals_number_field.setAttribute("target", journals_unique.length );
     journals_number_field.innerText = Math.max(journals_unique.length - (Math.round(journals_unique.length*0.25)), 0);
 
-    console.log(subgroups_unique.length)
-
-
-
 
     animateStats();
-
-
-
-
-
-
     //#endregion Header
 
     
@@ -129,436 +125,14 @@ async function initializeMainPage() {
     const papers_span = document.getElementById("papers-span");
 
     papers_span.textContent = large_table.length;
-    
-    
-    function prepareSunburstData(data, col1, col2){
-
-        const freqs_col1 = getColumnValueFrequencies(col1, data);
-        const freqs_col2 = getColumnValueFrequencies(col2, data);
-
-        const sunburst_data = [];
-
-        const col1_unique_values = [...new Set(data.map(row => row[col1]))];
-        
-        // first create data strutcure
-        col1_unique_values.forEach(value => {
-
-            // add parent node (col1) 
-
-            sunburst_data.push ({
-                name: value,
-                ...(freqs_col1[value] && { value: freqs_col1[value] }),
-                children: new Map()  // map to keep unique children only
-            });
-        });
-
-        console.log(sunburst_data)
-        
-        // add children
-        data.forEach(row => {
-            const col1_value = row[col1];
-            const col2_value = row[col2];
-
-            if (col1_value && col2_value) {
-                // get parent in the array
-                const parent = sunburst_data.find(row => row.name === col1_value);
-                
-                if (parent) {
-                    const col2_count = freqs_col2[col2_value];
-                    
-                    if (!parent.children.has(col2_value)) {
-                        parent.children.set(col2_value, {
-                            name: col2_value,
-                            ...(col2_count && { value: col2_count })
-                        });
-                    }
-                }
-            }
-        });
-        
-        // convert maps to arrays 
-        sunburst_data.forEach(parent => {
-            parent.children = Array.from(parent.children.values());
-        });
-        
-        return sunburst_data;
-
-    }
-
-    function createSunburst(container_id, sunburst_data, title){
-
-        var container = document.getElementById(container_id);
-        var chart = echarts.init(container);
-
-        const resizeObserver = new ResizeObserver((entries) => {
-            chart.resize();
-          })
-        resizeObserver.observe(container);
-        
-
-        var option = {
-            title: {
-                text: title,
-                textStyle: {
-                  fontSize: 14,
-                  align: 'center'
-                }
-            },
-            tooltip: {
-                trigger: 'item',
-                triggerOn: 'mousemove'
-            },
-            series: {
-                type: 'sunburst',
-                // emphasis: {
-                //     focus: 'ancestor'
-                // },
-                data: sunburst_data,
-                radius: ['10%', '100%'],
-                label: {
-                    rotate: 'radial',
-                    fontSize: 12,
-                },
-                itemStyle: {
-                    borderColor: '#fff',
-                    borderWidth: 1, 
-                    borderRadius:7, 
-                }
-            }
-            
-        };
-
-        option && chart.setOption(option);
-    }
-
-    // const sunburst_data = prepareSunburstData(large_table, "group", "subgroup")
-    // console.log(sunburst_data)
-
-    // createSunburst("sunburst-group", sunburst_data, "Title")
-
-    function createVisualizations(data){
-        const group_container = document.getElementById("group-pie");
-        const subgroup_container = document.getElementById("subgroup-pie");
-        const focus_container = document.getElementById("focus-pie");
-        const model_container = document.getElementById("model-pie");
-        const cell_origin_container = document.getElementById("cell-origin-pie");
-
-        const all_cont = [group_container, subgroup_container, focus_container, model_container, cell_origin_container];
-
-        const [group_chart, subgroup_chart, focus_chart, model_chart, cell_origin_chart] = all_cont.map(cont => 
-            echarts.init(cont)
-        );
-
-        const group_data_init = returnPieData(getColumnValueFrequencies("group", data));
-        const subgroup_data_init = returnPieData(getColumnValueFrequencies("subgroup", data));
-        const focus_data_init = returnPieData(getColumnValueFrequencies("focus", data));
-        const model_data_init = returnPieData(getColumnValueFrequencies("model", data));
-        const cell_origin_data_init = returnPieData(getColumnValueFrequencies("cell_origin", data));
-
-        // const threshold = 5; (percentage)
-        // const group_condensed = condenseData(group_data, threshold);
-        // const subgroup_condensed = condenseData(subgroup_data, threshold);
-        // const focus_condensed = condenseData(focus_data, threshold);
-        // const model_condensed = condenseData(model_data, threshold);
-        // const cell_origin_condensed = condenseData(cell_origin_data, threshold);
-        
-        const options = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b}: {c} ({d}%)'
-            },
-            legend: {
-                top: '5%',
-                left: 'center',
-                data: []
-            },
-            series: [
-                {
-                    name: 'Categories',
-                    type: 'pie',
-                    radius: ['0%', '70%'],
-                    avoidLabelOverlap: false,
-                    label: {
-                        show: false,
-                        position: 'center'
-                    },
-                    labelLine: {
-                        show: false
-                    },
-                    data: [], 
-                    clockwise: false
-                }
-            ]
-        };
-
-        // const orange_options = {
-        //     tooltip: {
-        //         trigger: 'item',
-        //         formatter: '{a} <br/>{b}: {c} ({d}%)'
-        //     },
-        //     legend: {
-        //         top: '5%',
-        //         left: 'center',
-        //         data: []
-        //     },
-        //     color: [
-        //         "#df6d30","#ff9454", "#4a0000", "#a43c00", "#c95b1e", "#ffb574", 
-        //         "#8c2800", "#fb8446", "#ffd491", "#d56528", "#ee7a3c", 
-        //         "#e26f32", "#bd5113", "#690300", "#5a0000", "#983200", 
-        //        "#750f00", "#811c00", "#b14707", "#ff9645", "#ffc583"
-        //     ],
-        //     series: [
-        //         {
-        //             name: 'Categories',
-        //             type: 'pie',
-        //             radius: ['0%', '70%'],
-        //             avoidLabelOverlap: false,
-        //             label: {
-        //                 show: false,
-        //                 position: 'center'
-        //             },
-        //             labelLine: {
-        //                 show: false
-        //             },
-        //             data: [], 
-        //             clockwise: false
-        //         }
-        //     ]
-        // };
-
-        
-        updateChart(group_chart, group_data_init, options, "Groups", "Group");
-        updateChart(subgroup_chart, subgroup_data_init, options, "Subgroups", "Subgroup");
-        updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
-        updateChart(model_chart, model_data_init, options, "Models", "Model");
-        updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
-
-        // handle user interaction with charts
-        group_chart.on('click', function(params) {
-
-            const reset_btn = group_chart._dom.previousElementSibling;
-
-            reset_btn.onclick = function(){
-                updateChart(group_chart, group_data_init, options, "Groups", "Group");
-                updateChart(subgroup_chart, subgroup_data_init, options, "Subgroups", "Subgroup");
-                updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
-                updateChart(model_chart, model_data_init, options, "Models", "Model");
-                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
-
-                reset_btn.style.display = "none";
-            }
-            reset_btn.style.display = "flex";
-
-            const chart_name = params.seriesName.toLowerCase();
-            const clicked_value = params.name;
-
-          
-            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
-
-            const group_data = returnPieData(getColumnValueFrequencies("group", filtered_data));
-            const subgroup_data = returnPieData(getColumnValueFrequencies("subgroup", filtered_data));
-            const focus_data = returnPieData(getColumnValueFrequencies("focus", filtered_data));
-            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
-            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
-
-
-            updateChart(group_chart, group_data, options, "Groups", "Group");
-            updateChart(subgroup_chart, subgroup_data, options, "Subgroups", "Subgroup");
-            updateChart(focus_chart, focus_data, options, "Focuses", "Focus");
-            updateChart(model_chart, model_data, options, "Models", "Model");
-            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
-        });
-
-        subgroup_chart.on('click', function(params) {
-
-            const reset_btn = subgroup_chart._dom.previousElementSibling;
-
-            reset_btn.onclick = function(){
-                updateChart(subgroup_chart, subgroup_data_init, options, "Subgroups", "Subgroup");
-                updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
-                updateChart(model_chart, model_data_init, options, "Models", "Model");
-                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
-
-                reset_btn.style.display = "none";
-            }
-            reset_btn.style.display = "flex";
-
-            const chart_name = params.seriesName.toLowerCase();
-            const clicked_value = params.name;
-
-          
-            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
-
-            const subgroup_data = returnPieData(getColumnValueFrequencies("subgroup", filtered_data));
-            const focus_data = returnPieData(getColumnValueFrequencies("focus", filtered_data));
-            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
-            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
-
-            updateChart(subgroup_chart, subgroup_data, options, "Subgroups", "Subgroup");
-            updateChart(focus_chart, focus_data, options, "Focuses", "Focus");
-            updateChart(model_chart, model_data, options, "Models", "Model");
-            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
-        });
-
-        focus_chart.on('click', function(params) {
-
-            const reset_btn = focus_chart._dom.previousElementSibling;
-
-            reset_btn.onclick = function(){
-                updateChart(focus_chart, focus_data_init, options, "Focuses", "Focus");
-                updateChart(model_chart, model_data_init, options, "Models", "Model");
-                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
-
-                reset_btn.style.display = "none";
-            }
-            reset_btn.style.display = "flex";
-
-            const chart_name = params.seriesName.toLowerCase();
-            const clicked_value = params.name;
-
-          
-            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
-
-            const focus_data = returnPieData(getColumnValueFrequencies("focus", filtered_data));
-            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
-            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
-
-            updateChart(focus_chart, focus_data, options, "Focuses", "Focus");
-            updateChart(model_chart, model_data, options, "Models", "Model");
-            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
-        });
-
-        model_chart.on('click', function(params) {
-
-            const reset_btn = model_chart._dom.previousElementSibling;
-
-            reset_btn.onclick = function(){
-                updateChart(model_chart, model_data_init, options, "Models", "Model");
-                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
-
-                reset_btn.style.display = "none";
-            }
-            reset_btn.style.display = "flex";
-
-            const chart_name = params.seriesName.toLowerCase();
-            const clicked_value = params.name;
-
-          
-            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
-
-            const model_data = returnPieData(getColumnValueFrequencies("model", filtered_data));
-            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
-
-            updateChart(model_chart, model_data, options, "Models", "Model");
-            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
-        });
-
-        cell_origin_chart.on('click', function(params) {
-
-            const reset_btn = cell_origin_chart._dom.previousElementSibling;
-
-            reset_btn.onclick = function(){
-                updateChart(cell_origin_chart, cell_origin_data_init, options, "Cell Origin", "Cell Origin");
-
-                reset_btn.style.display = "none";
-            }
-            reset_btn.style.display = "flex";
-
-            const chart_name = params.seriesName.toLowerCase();
-            const clicked_value = params.name;
-
-          
-            const filtered_data = large_table.filter(row => row[chart_name] === clicked_value);
-
-            const cell_origin_data = returnPieData(getColumnValueFrequencies("cell_origin", filtered_data));
-
-            updateChart(cell_origin_chart, cell_origin_data, options, "Cell Origin", "Cell Origin");
-        });
-
-
-
-    }
-    
-
-    function updateChart(chart, data, options, title, chart_name) {
-       
-        options.series[0].data = data;
-        options.title = {
-            text: title,
-            left: '25%', 
-            top: 'top',  
-            textAlign: 'center'
-        };
-
-        options.series[0].name = chart_name;
-
-        options.series[0].center = ['25%', '50%'];
-
-        options.legend = {
-            type: 'scroll',  
-            orient: 'vertical', 
-            left: 'right',  
-            top: 'middle',
-            pageButtonItemGap:1, 
-            pageButtonPosition: 'end', 
-            padding: [0, 0, 0, 0]
-        };
-    
-
-        
-        options.legend.data = data.map(item => item.name);
-        chart.setOption(options, true);
-    }
-
-
-    // Function to convert the data in the correct format for pie charts
-    function returnPieData(col_value_freq_data){
-
-        const data = [];
-
-        Object.entries(col_value_freq_data).forEach(([name, value]) => {
-            
-            data.push({value: value, name: name})
-        });
-
-        // sort the data descending by value
-        data.sort((a, b) => b.value - a.value);
-
-        console.log(data)
-
-        return data;
-    }
-
-    function condenseData(data, threshold) {
-        let condensed_data = [];
-        let other_value = 0;
-        let other = 'Other';
-    
-        // split data into large and small categories
-        let large_data = data.filter(item => item.value >= threshold);
-        let small_data = data.filter(item => item.value < threshold);
-    
-        // sum small categories and create "other" category
-        small_data.forEach(item => {
-            other_value += item.value;
-        });
-    
-        if (other_value > 0) {
-            condensed_data.push({ name: other, value: other_value });
-        }
-    
-        // combine large categories and "other" 
-        condensed_data = condensed_data.concat(large_data);
-    
-        return condensed_data;
-    }
-    
-
-    createVisualizations(large_table)
-
 
     //#endregion About
 
+
+    //#region Visualizations
+    
+    createVisualizations(large_table)
+    //#endregionVisualizations
 
 
     //#region Datatable
@@ -581,10 +155,26 @@ async function initializeMainPage() {
         const options = select.nextElementSibling;
 
         select.onclick = function () {
+            // there are two possible ways the user clicks on a select, 
+            // - either he clicks on this select while another is open => handle it
+            // - or user clicks on select without another one opened
+
+            
             // if some other dropdown is open -> close it first
             if (open_option && open_option !== options) {
                 open_option.style.display = "none";
                 open_option.previousElementSibling.classList.remove("open");
+
+                // if select is closed, update checkboxes
+                let filters = table.getFilters();
+
+                if(filters){
+
+                    //simplify tabulator filters
+                    filters = simplifyFilters(filters);
+
+                    updateCheckboxes(filters, large_table);
+                }
             }
 
             // toggle current dropdown
@@ -596,6 +186,18 @@ async function initializeMainPage() {
                 options.style.display = "none";
                 select.classList.remove("open");
                 open_option = null;
+
+                // if select is closed, update checkboxes
+                let filters = table.getFilters();
+
+                if(filters){
+                    //simplify tabulator filters
+                    filters = simplifyFilters(filters);
+
+                    updateCheckboxes(filters, large_table);
+                    
+                }
+
             } else {
                 active_field = select.parentNode.id;
 
@@ -634,7 +236,7 @@ async function initializeMainPage() {
     const all_button = document.getElementById("all");
     const a_button = document.getElementById("a");
     const abbr_search_input = document.querySelector("#abbr-search .search-wrapper input");
-    const abbr_search_close_button = document.querySelector("#abbr-search .clear-btn");
+    const abbr_search_clear_button = document.querySelector("#abbr-search .clear-btn");
 
     let active_button;
 
@@ -716,9 +318,9 @@ async function initializeMainPage() {
         const input = event.target.value;
 
         if(input.length>0){
-            abbr_search_close_button.style.display = "flex";
+            abbr_search_clear_button.style.display = "flex";
         }else{
-            abbr_search_close_button.style.display = "none";
+            abbr_search_clear_button.style.display = "none";
         }
 
         existing_cards = document.querySelectorAll("#abbr-cards-wrapper .abbr-card")
@@ -741,11 +343,11 @@ async function initializeMainPage() {
         };
     }
 
-    // if the user clicks on the close button, input field gets resetted, close button hidden and all cards are shown again
-    abbr_search_close_button.onclick = function() {
+    // if the user clicks on the clear button, input field gets resetted, close button hidden and all cards are shown again
+    abbr_search_clear_button.onclick = function() {
         
         abbr_search_input.value = ""; // reset input field
-        abbr_search_close_button.style.display = "none"; // hide close button
+        abbr_search_clear_button.style.display = "none"; // hide close button
 
 
         // show all hidden cards again
@@ -756,8 +358,6 @@ async function initializeMainPage() {
         });
     };
 
-
-
     //#endregion Abbreviations
 
 
@@ -766,6 +366,9 @@ async function initializeMainPage() {
 
 }
 
+/**
+ * Function to initialize the legal page
+ */
 async function initializeLegalPage() { 
     
     const back_btn = document.getElementById("back-btn");
@@ -776,7 +379,7 @@ async function initializeLegalPage() {
     }
 }
 
-// depending on which page is active, run different initialize functions
+// Depending on which page is active, run different initialize functions
 if(window.location.pathname === "/"){
     initializeMainPage();
 } else if (window.location.pathname === "/legal"){
@@ -813,6 +416,442 @@ function animateStats() {
 }
 //#endregion Function for Header
 
+//#region Functions for Visualization
+
+/**
+ * Function that creates all visualizations
+ * @param {*} data 
+ */
+function createVisualizations(data){
+    const group_container = document.getElementById("group-pie");
+    const subgroup_container = document.getElementById("subgroup-pie");
+    const focus_container = document.getElementById("focus-pie");
+    const model_container = document.getElementById("model-pie");
+    const cell_origin_container = document.getElementById("cell-origin-pie");
+
+    const all_cont = [group_container, subgroup_container, focus_container, model_container, cell_origin_container];
+
+    // initialize all charts 
+    const [group_chart, subgroup_chart, focus_chart, model_chart, cell_origin_chart] = all_cont.map(cont => 
+        echarts.init(cont)
+    );
+
+    // get pie data
+    const group_data_init = returnPieData(getColumnValueFrequencies("group", data));
+    const subgroup_data_init = returnPieData(getColumnValueFrequencies("subgroup", data));
+    const focus_data_init = returnPieData(getColumnValueFrequencies("focus", data));
+    const model_data_init = returnPieData(getColumnValueFrequencies("model", data));
+    const cell_origin_data_init = returnPieData(getColumnValueFrequencies("cell_origin", data));
+
+    // condense data based on a threshold in other category
+    const threshold = 5; // (count)
+    const group_data_init_condensed = condenseData(group_data_init,threshold);
+    const subgroup_data_init_condensed = condenseData(subgroup_data_init,threshold);
+    const focus_data_init_condensed = condenseData(focus_data_init,threshold);
+    const model_data_init_condensed = condenseData(model_data_init,threshold);
+    const cell_origin_data_init_condensed = condenseData(cell_origin_data_init,threshold);
+
+    
+
+    
+    const orange_options = {
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+            type: 'scroll',  
+            orient: 'vertical', 
+            left: 'right',  
+            top: 'middle',
+            pageButtonItemGap:1, 
+            pageButtonPosition: 'end', 
+            padding: [0, 0, 0, 0],
+            width: 70, 
+            textStyle: {
+                width: 100, 
+                overflow: 'break', 
+            },
+            formatter: function (name) {
+                const maxLength = 10;
+                if (name.length > maxLength) {
+                return name.slice(0, maxLength) + '-\n' + name.slice(maxLength);
+                }
+                return name;
+            },
+            data: []
+        },
+        series: [
+            {
+                name: 'Categories',
+                type: 'pie',
+                radius: ['0%', '57%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                labelLine: {
+                    show: false
+                },
+                data: [], 
+                clockwise: false, 
+                color: ["#df6d30", "#a76a6b",
+                    "#e3a431",
+                    "#d9374a",
+                    "#e3ab62",
+                    "#ac3f43",
+                    "#e8b596",
+                    "#b4411e",
+                    "#6b4c33",
+                    "#e66d32",
+                    "#85644a",
+                    "#db822a",
+                    "#854a42",
+                    "#a87629",
+                    "#df8888",
+                    "#7d5719",
+                    "#ea705c",
+                    "#6e4b22",
+                    "#da9072",
+                    "#6e4b22",
+                    "#d68850",
+                    "#896338",
+                    "#b96153",
+                    "#9c541c",
+                    "#b08162",
+                    "#925131"],
+            }
+        ]
+    };
+
+    const blue_options = {
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+            type: 'scroll',  
+            orient: 'vertical', 
+            left: 'right',  
+            top: 'middle',
+            pageButtonItemGap:1, 
+            pageButtonPosition: 'end', 
+            padding: [0, 0, 0, 0],
+            width: 70, 
+            textStyle: {
+                width: 100, 
+                overflow: 'break', 
+            },
+            formatter: function (name) {
+                const maxLength = 10;
+                if (name.length > maxLength) {
+                return name.slice(0, maxLength) + '-\n' + name.slice(maxLength);
+                }
+                return name;
+            },
+            data: []
+        },
+        series: [
+            {
+                name: 'Categories',
+                type: 'pie',
+                radius: ['0%', '57%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                labelLine: {
+                    show: false
+                },
+                data: [], 
+                clockwise: false, 
+                color: [" #103456", "#847fa6",
+                    "#0f1f5f",
+                    "#3b8187",
+                    "#395bdd",
+                    "#4b496c",
+                    "#547cee",
+                    "#292748",
+                    "#5885de",
+                    "#28a3a9",
+                    "#162956",
+                    "#4c93ac",
+                    "#20296c",
+                    "#245e78",
+                    "#2c4bab",
+                    "#3792bd",
+                    "#19377e",
+                    "#728abe",
+                    "#1c4585",
+                    "#5794d7",
+                    "#2a4271",
+                    "#767bc7",
+                    "#445e8f",
+                    "#494b93",
+                    "#2e64a8",
+                    "#2d5192"],
+            
+            }
+        ]
+    };
+
+
+    
+
+    const categories = ["Group", "Subgroup", "Focus", "Model", "Cell Origin"];
+    
+    // helper maps, to look up the infor for each category
+    const chart_map = {
+        Group: group_chart,
+        Subgroup: subgroup_chart,
+        Focus: focus_chart,
+        Model: model_chart,
+        "Cell Origin": cell_origin_chart
+    };
+
+    const data_map_init_condensed = {
+        Group: group_data_init_condensed,
+        Subgroup: subgroup_data_init_condensed,
+        Focus: focus_data_init_condensed,
+        Model: model_data_init_condensed,
+        "Cell Origin": cell_origin_data_init_condensed
+    }
+
+    const data_map_init= {
+        Group: group_data_init,
+        Subgroup: subgroup_data_init,
+        Focus: focus_data_init,
+        Model: model_data_init,
+        "Cell Origin": cell_origin_data_init
+    }
+
+    const titles_map = {
+        Group: "Groups",
+        Subgroup: "Subgroups",
+        Focus: "Focuses",
+        Model: "Models",
+        "Cell Origin": "Cell Origins"
+
+    }
+
+    const large_table_map = {
+        Group: "group",
+        Subgroup: "subgroup",
+        Focus: "focus",
+        Model: "model",
+        "Cell Origin": "cell_origin"
+
+    }
+
+    
+    // initialize each chart
+    categories.forEach((category, index) =>{
+        // alternate between blue_options and orange_options
+        const options = index % 2 === 0 ? blue_options : orange_options;
+
+        // update chart
+        updateChart(chart_map[category], data_map_init_condensed[category], options, titles_map[category], category);
+
+        // for each category, handle if its chart is clicked
+        handleChartClick(chart_map[category], chart_map, data_map_init, data_map_init_condensed, categories, titles_map, large_table_map, options, threshold, data)
+    })
+    
+    
+
+}
+
+
+/**
+ * Function sets onclick function to Echarts charts
+ * @param {*} chart - Chart
+ * @param {*} chart_map - Chart map to get the other charts
+ * @param {*} data_map_init - Original data map
+ * @param {*} data_map_init_condensed - Condensed data map
+ * @param {string[]} categories - Array of categories
+ * @param {Object} titles_map - Title map for each category
+ * @param {Object} large_table_map - Large table map for each category
+ * @param {Object} options - Echarts options
+ * @param {int} threshold - Threshold for condensing the data
+ * @param {*} large_table - Large Table Dataset 
+ */
+function handleChartClick(chart, chart_map, data_map_init, data_map_init_condensed, categories, titles_map,large_table_map, options,threshold, large_table){
+
+    chart.on('click', function(params) {
+        const chart_name = params.seriesName; // e.g. Model, Group
+        const clicked_value = params.name;
+
+        // get index of the chart category
+        let current_idx = categories.indexOf(chart_name);
+
+        // get chart button
+        const reset_btn = chart._dom.previousElementSibling;
+
+        // handle chart reset
+        reset_btn.onclick = function(){
+
+            // loop through categories to update charts
+            categories.forEach((category, index) =>{
+
+                // if index is greater or equal to the current index, update those charts (due to cascading updating behavior)
+                if (index >= current_idx){
+                    updateChart(chart_map[category], data_map_init_condensed[category], options, titles_map[category], category);
+                }
+
+            })
+
+            // if reset is clicked, hide the button again
+            reset_btn.classList.remove("visible");
+            reset_btn.classList.add("hidden");
+
+            // check if there are other visible reset buttons
+            const other_visible_resets = document.querySelectorAll(".reset-selection-btn");
+
+            // loop throught them and hide all, which are hierarchically lower (higher data-value than the current reset button)
+            other_visible_resets.forEach(reset => {
+                if (reset.getAttribute("data-value") > reset_btn.getAttribute("data-value")){
+                    reset.classList.remove("visible");
+                    reset.classList.add("hidden");
+                }
+            })
+
+
+        }
+        reset_btn.classList.add("visible"); // show reset button
+        reset_btn.classList.remove("hidden");
+
+        if(clicked_value !== "Other"){
+            // filter the data
+            const filtered_data = large_table.filter(row => row[large_table_map[chart_name]] === clicked_value);
+
+            // loop through categories to retrieve new data and update charts
+            categories.forEach((category, index) =>{
+
+                // if index is greater or equal to the current indey, update those charts (due to cascading updating behavior)
+                if (index >= current_idx){
+
+                    const data = returnPieData(getColumnValueFrequencies(large_table_map[category], filtered_data));
+
+                    updateChart(chart_map[category], data, options, titles_map[category], category);
+                }
+            })
+        }else{
+            const small_data = data_map_init[chart_name].filter(item => item.value < threshold); 
+            const small_names = small_data.map(item => item.name);
+
+            const updated_data = large_table.filter(row => small_names.includes(row[large_table_map[chart_name]]))
+
+            updateChart(chart, small_data, options, titles_map[chart_name], chart_name);
+
+
+            // loop through categories to retrieve new data and update charts
+            categories.forEach((category, index) =>{
+
+                // if index is greater or equal to the current indey, update those charts (due to cascading updating behavior)
+                if (index > current_idx){
+                    const new_data = returnPieData(getColumnValueFrequencies(large_table_map[category],updated_data));
+
+                    updateChart(chart_map[category], new_data, options, titles_map[category], category);
+                }
+            });
+
+        
+
+        }
+
+    });
+
+
+}
+
+
+/**
+ * Function that updated the Chart data and options
+ * @param {*} chart - Chart
+ * @param {*} data - Data
+ * @param {*} options - Echarts options
+ * @param {string} title - Title of the chart
+ * @param {string} chart_name - Chart Name / Category
+ */
+function updateChart(chart, data, options, title, chart_name) {
+
+    options.series[0].data = data;
+
+    options.title = {
+        text: title,
+        left: '30%', 
+        top: 'top',  
+        textAlign: 'center'
+    };
+
+    options.series[0].name = chart_name;
+
+    options.series[0].center = ['30%', '50%'];
+
+
+    options.legend.data = data.map(item => item.name);
+
+    chart.setOption(options, true);
+}
+
+
+/**
+ * Function to convert the data in the correct format for pie charts.
+ * @param {{ [key: string]: number }} col_value_freq_data 
+ * @returns {{ value: number, name: string }[]} 
+ */
+function returnPieData(col_value_freq_data){
+
+    const data = [];
+
+    Object.entries(col_value_freq_data).forEach(([name, value]) => {
+        
+        data.push({value: value, name: name})
+    });
+
+    // sort the data descending by value
+    data.sort((a, b) => b.value - a.value);
+
+    return data;
+}
+
+/**
+ * Function condenses data by adding a other category in which all categories will be summed if their value is below a threshold.
+ * @param {{{ value: number, name: string }[]}} data 
+ * @param {int} threshold 
+ */
+function condenseData(data, threshold) {
+    let condensed_data = [];
+    let other_value = 0;
+    let other = 'Other';
+
+
+    // split data into large and small categories
+    let large_data = data.filter(item => item.value >= threshold);
+    let small_data = data.filter(item => item.value < threshold);
+
+    // sum small categories and create "other" category
+    small_data.forEach(item => {
+        other_value += item.value;
+    });
+
+    if (other_value > 0) {
+        condensed_data.push({ name: other, value: other_value });
+    }
+
+    // combine large categories and "other" 
+    condensed_data = condensed_data.concat(large_data);
+
+    // sort data again
+    // sort the data descending by value
+    condensed_data.sort((a, b) => b.value - a.value);
+
+    return condensed_data;
+}
+//#endregion Functions for Visualization
+
+
 //#region Functions for Section Datatable
 
 /**
@@ -838,7 +877,7 @@ function createDataTable(large_table){
     ];
 
     // create the tabulator table 
-    var table = new Tabulator("#table-container", {
+    table = new Tabulator("#table-container", {
         data: large_table,
         columns: tableCols,
         placeholder: "Nothing available",
@@ -873,7 +912,7 @@ function createDataTable(large_table){
     const year_search = document.querySelector("#year-search input");
     const journal_search = document.querySelector("#journal-search input");
 
-
+    // if table is loaded, initialize everything for each filter 
     table.on("dataLoaded", function(data){
 
         // GROUP FILTER 
@@ -917,6 +956,8 @@ function createDataTable(large_table){
         activateFilterSearch(journal_options_container, journal_search);
         activateCheckboxFilter(journal_options_container, "journal", table);
         colorSelectedFilter(journal_options_container)
+
+        //#region Initialize Header Searchbar
         
         // add function to the header search bar 
         const header_search_input = document.querySelector("#header-search input");
@@ -958,6 +999,10 @@ function createDataTable(large_table){
                 }else{
                     table.setFilter(field_value, "like", value);
                 }
+
+                // show clear button
+                const clear_filter_btn = document.getElementById("clear-filter-btn");
+                clear_filter_btn.style.display = "flex";
             }
 
             
@@ -1000,6 +1045,10 @@ function createDataTable(large_table){
 
                     }
                 }
+
+                // show clear button
+                const clear_filter_btn = document.getElementById("clear-filter-btn");
+                clear_filter_btn.style.display = "flex";
     
                 
             }
@@ -1021,60 +1070,8 @@ function createDataTable(large_table){
             header_search_input.focus();
         }
 
-        table.on("dataFiltering", function(filters){
+        //#endregion Initialize Header Searchbar
 
-            console.log(filters);
-
-            filters = simplifyFilters(filters);
-
-            
-            const filtered_data = data.filter(row => {
-                return Object.entries(filters).every(([key, value]) => {
-                  if (Array.isArray(value)) {
-                    return value.includes(row[key]);
-                  }
-                  return row[key] === value;
-                });
-            });
-
-            const valid_options = getValidFilterOptionsAndFreqs(filtered_data);
-
-            const checkboxes = document.querySelectorAll(".checkbox");
-
-            checkboxes.forEach(box => {
-                const box_value = box.getAttribute("data-value");
-                const box_span = box.querySelector("span");
-
-                if (box_value in valid_options){
-                    box.disabled = false; 
-                    box_span.textContent = valid_options[box_value];
-                } else{
-                    box.disabled = true; 
-                    box_span.textContent = "0";
-
-                }
-            })
-
-            const containers = document.querySelectorAll('.options-container');
-
-            containers.forEach(container => {
-                const boxes = Array.from(container.querySelectorAll('.checkbox'));
-
-                // Sort the checkbox divs based on the number in their .count span
-                boxes.sort((a, b) => {
-                    const countA = parseInt(a.querySelector('.count').textContent);
-                    const countB = parseInt(b.querySelector('.count').textContent);
-                    return countB - countA; // Descending order
-                });
-
-                // Re-append them in sorted order
-                boxes.forEach(checkbox => container.appendChild(checkbox));
-
-        
-
-            })
-            
-        });
 
         // add functions to the clear filter button
         const clear_filter_btn = document.getElementById("clear-filter-btn");
@@ -1088,41 +1085,58 @@ function createDataTable(large_table){
 
             // remove all active-filter attributes
             document.querySelectorAll('.select.active-filter').forEach(select => select.classList.remove("active-filter"));
+
+            // update checkboxes with no filter set
+            updateCheckboxes({}, large_table)
+
+            clear_filter_btn.style.display = "none";
+            
         };
     });
 
 }
 
+/**
+ * Function converts tabulator filters to an simplified
+ * @param {LargeTable[]} large_table - Array of LargeTable.
+ */
 function simplifyFilters(tabulatorFilters) {
     const result = {};
+
+    // loop through tabulator filters
     tabulatorFilters.forEach(filter => {
       result[filter.field] = filter.value;
     });
     return result;
-  }
+}
 
-function getValidFilterOptionsAndFreqs(data){
+/**
+ * Function that filters the given data based on the provided filters and gets the valid filter options and their frequencies.
+ *
+ * @param {Object} filters - An object where keys are column names and values are the filter criteria. 
+ *                            Values can be a single value or an array of values.
+ * @param {LargeTable[]} data - The dataset to be filterd.
+ * @returns {{ [key: string | number]: number }} - An object where keys are column names and values are the frequency of each valid option.
+ */
+function getValidFilterOptionsAndFreqs(filters, data){
+
+    const filtered_data = data.filter(row => {
+        return Object.entries(filters).every(([key, value]) => {
+          if (Array.isArray(value)) {
+            return value.includes(row[key]);
+          }
+          return row[key] === value;
+        });
+    });
 
     const table_cols = ["group", "subgroup", "focus", "model", "cell_origin", "year", "journal"]
 
-
     const valid_options = Object.assign(
         {},
-        ...table_cols.map(col => getColumnValueFrequencies(col, data))
+        ...table_cols.map(col => getColumnValueFrequencies(col, filtered_data))
     );
 
-
     return valid_options;
-
-    // const result = {};
-
-    // for (const col of table_cols) {
-    //     // For the active filter, always use the full dataset
-    //     const source = col === active_field ? rawData : data;
-    //     result[col] = getColumnValueFrequencies(col, source);
-    // }
-
-    // return result;
 }
 
 /**
@@ -1169,42 +1183,12 @@ function fillOptionsContainer(container, table_col, data){
 
 }
 
-function updateCheckboxes(container, table_col, new_data) {
-
-    var unique_values = [...new Set(new_data.map(row => row[table_col]))];
-
-    // Loop through each checkbox and enable/disable based on whether the value is in the visible data
-    container.querySelectorAll('.checkbox').forEach(checkbox => {
-        const value = checkbox.getAttribute("data-value");
-        const checkboxInput = checkbox.querySelector("input[type='checkbox']");
-        const label = checkbox.querySelector("label");
-
-        // Enable checkbox if the value exists in the filtered data, otherwise disable it
-        if (unique_values.includes(value)) {
-            checkbox.disabled = false; // Enable the entire div
-            checkboxInput.disabled = false; // Enable the checkbox input
-        } else {
-            checkbox.disabled = true; // Disable the entire div
-            checkboxInput.disabled = true; // Disable the checkbox input
-        }
-
-        // get frequencies
-        const freqs = getColumnValueFrequencies(table_col, new_data);
-
-        // Optionally update the count of values in the label
-        const countSpan = label.querySelector(".count");
-        const count = freqs[value];
-        countSpan.textContent = count; // Update the count in the label
-    });
-    
-}
-
 /**
  * Function that returns a dictionary of a value and its frequency inside a data column.
  * @param {string} table_col 
  * @param {*} data 
  * 
- * @returns {}
+ * @returns {{ [key: string]: number }}
  */
 function getColumnValueFrequencies(table_col, data) {
     const frequency = {};
@@ -1294,6 +1278,56 @@ function activateCheckboxFilter(options_container, table_col, table ){
     });
 
     
+}
+
+/**
+ * Function to update the Checkboxes depending on active filter
+ * @param {*} filter 
+ * @param {*} large_table
+ */
+function updateCheckboxes(filters, large_table){
+    // get all valid options
+    const valid_options = getValidFilterOptionsAndFreqs(filters, large_table);
+
+    // get all checkboxes
+    const checkboxes = document.querySelectorAll(".checkbox");
+
+    // loop through checkboxes
+    checkboxes.forEach(box => {
+        const box_value = box.getAttribute("data-value");
+        const box_span = box.querySelector("span");
+
+        // if checkbox is a valid option
+        if (box_value in valid_options){
+            // show un-disable it and change its styling accordingly
+            box.firstElementChild.disabled = false;
+            box.lastElementChild.style.color = text_color;
+            box.lastElementChild.lastElementChild.style.color = subtext_color;
+            box_span.textContent = valid_options[box_value];
+        } else{
+            // if checkbox is not in valid options, disable it
+            box.firstElementChild.disabled = true; 
+            box.lastElementChild.style.color = inactive_color;
+            box.lastElementChild.lastElementChild.style.color = inactive_color;
+            box_span.textContent = "0"; // set count to 0
+        }
+    })
+
+    const containers = document.querySelectorAll('.options-container');
+
+    containers.forEach(container => {
+        const boxes = Array.from(container.querySelectorAll('.checkbox'));
+
+        // sort the checkbox divs based on the number in their .count span
+        boxes.sort((a, b) => {
+            const countA = parseInt(a.querySelector('.count').textContent);
+            const countB = parseInt(b.querySelector('.count').textContent);
+            return countB - countA; // Descending order
+        });
+
+        // re-append them in sorted order
+        boxes.forEach(checkbox => container.appendChild(checkbox));
+    })
 }
 
 /**

@@ -7,8 +7,8 @@
     <title>OrganoidMap</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="static/logo_organoidmap_flavicon.webp" type="image/x-icon">
-    <link rel="icon" href="static/logo_organoidmap_flavicon.webp" type="image/png">
+    <link rel="icon" href="static/logo_organoidmap_flavicon.png" type="image/x-icon">
+    <link rel="icon" href="static/logo_organoidmap_flavicon.png" type="image/png">
 
     <!-- Tabulator Stylesheet -->
     
@@ -21,12 +21,6 @@
 </head>
 
 <body>
-
-    <nav>
-        
-        
-
-    </nav>
     
     <main>
 
@@ -20985,13 +20979,7 @@
                     <p>With OrganoidMap, we aim to provide a straightforward, broadly accessible tool suitable for everyone interested in cerebral organoids — whether you’re a beginner or an expert, this tool helps you navigate the growing and complex landscape of cerebral organoid research.</p>
                 </div>
 
-                <div class="chart-wrapper">
-                    <button type="button" class="reset-selection-btn text-btn">
-                        <i class="fa-solid fa-rotate-left"></i>Reset Selection
-                    </button>
-                    <div id="group-pie" class="pie-container">
-                    </div>
-                </div>
+                
             </div>
 
             <div class="about-section" id="vision">
@@ -21034,32 +21022,49 @@
 
         <section id="visualizations">
             <div class="chart-wrapper">
-                <button type="button" class="reset-selection-btn text-btn">
+                <button type="button" class="reset-selection-btn text-btn  hidden" data-value="0">
+                    <i class="fa-solid fa-rotate-left"></i>Reset Selection
+                </button>
+                <div id="group-pie" class="pie-container">
+                </div>
+            </div>
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+            <div class="chart-wrapper">
+                <button type="button" class="reset-selection-btn text-btn  hidden" data-value="1">
                     <i class="fa-solid fa-rotate-left"></i>
                     Reset Selection
                 </button>
                 <div id="subgroup-pie" class="pie-container"></div>
             </div>
+
+            <i class="fa-solid fa-arrow-right"></i>
+            
             <div class="chart-wrapper">
-                <button type="button" class="reset-selection-btn text-btn">
+                <button type="button" class="reset-selection-btn text-btn  hidden" data-value="2">
                     <i class="fa-solid fa-rotate-left"></i>
                     Reset Selection
                 </button>
                 <div id="focus-pie" 
                 class="pie-container"></div>
             </div>
+
+            <i class="fa-solid fa-arrow-right"></i>
+
             <div class="chart-wrapper">
 
-                <button type="button" class="reset-selection-btn text-btn">
+                <button type="button" class="reset-selection-btn text-btn hidden" data-value="3">
                     <i class="fa-solid fa-rotate-left"></i>
                     Reset Selection
                 </button>
 
                 <div id="model-pie" class="pie-container"></div>
             </div>
+            <i class="fa-solid fa-arrow-right"></i>
             <div class="chart-wrapper">
 
-                <button type="button" class="reset-selection-btn text-btn">
+                <button type="button" class="reset-selection-btn text-btn hidden" data-value="4">
                     <i class="fa-solid fa-rotate-left"></i>
                     Reset Selection
                 </button>
@@ -21327,7 +21332,7 @@
                     <img src="static/logo_tungsten_and_tungsten.png" alt="Logo Tungsten and Tungsten">
                 </div>
 
-                <div class="footer-logo">
+                <div class="footer-logo" id="organoid-map-logo">
                     <img src="static/logo_organoidmap_shadow.png" alt="Logo OrganoidMap">
                 </div>
 
@@ -21337,20 +21342,25 @@
                 
                 
             </div>
+
+            
             <div class="horizontal-seperator"></div>
-            <div id="bottom-row">
-                <div id="copyright">
-                    © 2025 Anna Wolfram & Maik Wolfram-Schauerte
-                </div>
-                <div id="links">
-                    <a href="/legal#contact">Contact</a>
-                    <a href="/legal#impressum">Impressum / Legal Disclosure</a>
-                    <a href="/legal#privacy-policy">Privacy Policy</a>
-                    <a href="/legal#terms-of-use">Terms of use</a>
-                    <a href="/legal#disclaimer">Disclaimer</a>
-                    <a href="/legal#accessibility-statement">Accessibility statement</a>
-                </div>
+            
+            <div id="links">
+                <a href="/legal#contact">Contact</a>
+                <a href="/legal#impressum">Impressum / Legal Disclosure</a>
+                <a href="/legal#privacy-policy">Privacy Policy</a>
+                <a href="/legal#terms-of-use">Terms of use</a>
+                <a href="/legal#disclaimer">Disclaimer</a>
+                <a href="/legal#accessibility-statement">Accessibility statement</a>
             </div>
+                
+            <div id="credit">
+                <p>© 2025 Anna Wolfram & Maik Wolfram-Schauerte</p>
+                <p id="dev">Design & Development by Caroline Trust</p>
+            </div>
+
+            
 
         </section>
         
