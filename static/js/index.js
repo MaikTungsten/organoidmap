@@ -1323,6 +1323,7 @@ function activateCheckboxFilter(options_container, table_col, table ){
                 // if no checkboxes are selected, reset the filter
                 table.clearFilter();
             }
+            
         });
 
     });
