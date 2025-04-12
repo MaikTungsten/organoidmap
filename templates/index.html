@@ -20899,7 +20899,7 @@
 
             <div id="header-search">
  
-                <input type="text" name="Search" placeholder="Search Abbreviations..." aria-placeholder="Search Abbreviations..." class="search-input">
+                <input type="text" name="Search" placeholder="Search..." aria-placeholder="Search..." class="search-input">
                
                 <button class="clear-btn" type="button" aria-label="Search">
                     <i class="fa-solid fa-xmark" aria-disabled="true"></i>
@@ -20968,108 +20968,128 @@
         
         
         <section id="about">
-            <div class="about-section" id="exploring">
-                <h1>Exploring Cerebral Organoid Research in Neuroscience</h1>
-                <p>Over the past ten years, cerebral organoids have transformed how we study the brain. Derived from stem cells, these 3D “mini-brains in a dish” mimic early brain development and offer an ethical, species-relevant alternative to traditional animal models. Organoids have opened new frontiers across neurodevelopment, neurodegeneration, and neuro-oncology — enabling researchers to model complex brain processes, human diseases, and even patient-specific traits in a controlled lab setting</p>
-            </div>
 
-            <div class="about-organoidmap-wrapper">
-                <div class="about-section" id="about-organoidmap">
-                    <h1>About OrganoidMap</h1>
-                    <p>With OrganoidMap, we aim to provide a straightforward, broadly accessible tool suitable for everyone interested in cerebral organoids — whether you’re a beginner or an expert, this tool helps you navigate the growing and complex landscape of cerebral organoid research.</p>
+            <div class="container-wrapper">
+                <div class="about-section" >
+                    <h1>Exploring Cerebral Organoid Research in Neuroscience</h1>
+                    <p>Over the past decade, cerebral organoids have transformed how we study the brain. Derived from stem cells, these 3D “mini-brains in a dish” recapitulate early neurodevelopmental processes and provide an ethical, species-relevant alternative to traditional animal models. Cerebral organoids are now applied across neurodevelopment, neurodegeneration, and neuro-oncology – enabling disease modeling, drug screening, and personalized insights in a controlled, human-specific setting.</p>
                 </div>
-
                 
-            </div>
+                <div id="about-organoidmap-wrapper">
+                
+                    <div id="about-organoidmap">
+                        <h1>About OrganoidMap</h1>
+                        <p>OrganoidMap is an open-access, interactive web application designed to help researchers, clinicians, students, and anyone interested in cerebral organoid research navigate this rapidly growing field. Whether you are new to the topic or searching for a model to support a specific study, OrganoidMap offers a streamlined interface to explore <span id="papers-span">approximately 800</span> systematically curated publications from the past decade.</p>
+                    </div>
 
-            <div class="about-section" id="vision">
-                <h1>Vision</h1>
-                <p>Our interactive platform brings together <span id="papers-span">approximately 800</span> publications from the past decade, systematically categorized by research domain, cell source, application, as well as model advantages and limitations.</p>
-            </div>
+                    <div id="sunburst-wrapper">
+                        <img src="static/sunburst.svg" alt="Sunburst Chart">
+                    </div>
+                
+                </div>
+                
+            </div>     
             
         </section>
 
+        <div id="vision-mission-wrapper">
+            <div id="vision" class="container-half">
+                <h1>Vision</h1>
+                <p>We envision a future where cerebral organoids are a standard component of both preclinical research and clinical decision-making – serving as functional precision medicine tools that optimize patient stratification, personalize therapy, and close the translational gap between bench and bedside.</p>
+            </div>
+
+            <div id="mission" class="container-half">
+                <h1>Mission</h1>
+                <p>We aim to empower the neuroscience and biomedical research community with an accessible, high-quality tool for exploring and comparing cerebral organoid models. OrganoidMap supports informed model selection, promotes transparency in experimental design, and helps researchers navigate the expanding field.</p>
+            </div>
+
+        </div>
+
         <section id="how-to">
-            <h1>How to Use the Platform</h1>
-            <p>
-                You have two main ways to explore the dataset:
+            <h1>How to Use OrganoidMap</h1>
+            
+            <div class="container-wrapper">
+                <div class="container-half short-underline">
+                    <h3>Quick Search for First Impressions</h3>
+                    <p>Use the search bar at the top of the page to look up terms of interest – such as a specific disease, gene, model type, or keyword. This is ideal for initial exploration and gaining a broad overview.</p>
+                </div>
+                <div class="container-half short-underline">
+                    <h3>Filter Options for Detailed Exploration</h3>
+                    <p>Use the filter panel to narrow down studies based on predefined categories. This is best for targeted queries or when looking for specific model features. Results display in a sortable table.</p>
+                </div>
+            </div>
 
-                <ol>
-                    <li> <strong>Search Bar</strong>
-                         <br> Use the search bar at the top of the page to directly look for specific terms, keywords, or topics.
-                    </li>
-                    <br>
-                    <li>
-                        <strong>Filter Options</strong>
-                        <br>
-                        Use the filter panel to explore and narrow down studies based on key categories:
-
-                        <ul>
-                            <li>Group – Neurodevelopment, Neurodegeneration, or Neuro-oncology</li>
-                            <li>Subgroup – e.g., functional studies in neurodevelopment, tauopathies in neurodegeneration, or glioma in neuro-oncology</li>
-                            <li>Model Type – e.g., Cerebral organoid, assembloid, or co-culture systems</li>
-                            <li>Cell Origin – e.g., embryonic stem cells (ESCs) or induced pluripotent stem cells (iPSCs)</li>
-                        </ul>
-
-                    </li>
-                </ol>
-                
-                
-                <br>
-                By visualizing trends and synthesizing relevant models in one table — allowing you to directly compare their advantages and limitations — we aim to support more informed, precise, and translationally relevant neuroscience.
-            </p>
         </section>
 
         <section id="visualizations">
-            <div class="chart-wrapper">
-                <button type="button" class="reset-selection-btn text-btn  hidden" data-value="0">
-                    <i class="fa-solid fa-rotate-left"></i>Reset Selection
-                </button>
-                <div id="group-pie" class="pie-container">
-                </div>
-            </div>
+            <h1>Explore the Data Visually</h1>
 
-            <i class="fa-solid fa-arrow-right"></i>
+            <p>To help you quickly grasp the structure and scope of the dataset, OrganoidMap includes an interactive pie chart visualization. This dynamic interface provides an overview of included studies by group, subgroup, research focus, model type and cell origin. Simply hover over any pie segment to reveal more detail, and click to filter – all charts update automatically, making it easy to track patterns and explore cross-category relationships. Combined with the interactive data table, this feature supports informed, precise, and translationally relevant model selection – all in one place.</p>
 
-            <div class="chart-wrapper">
-                <button type="button" class="reset-selection-btn text-btn  hidden" data-value="1">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    Reset Selection
-                </button>
-                <div id="subgroup-pie" class="pie-container"></div>
-            </div>
-
-            <i class="fa-solid fa-arrow-right"></i>
+            <br>
             
-            <div class="chart-wrapper">
-                <button type="button" class="reset-selection-btn text-btn  hidden" data-value="2">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    Reset Selection
-                </button>
-                <div id="focus-pie" 
-                class="pie-container"></div>
-            </div>
-
-            <i class="fa-solid fa-arrow-right"></i>
-
-            <div class="chart-wrapper">
-
-                <button type="button" class="reset-selection-btn text-btn hidden" data-value="3">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    Reset Selection
-                </button>
-
-                <div id="model-pie" class="pie-container"></div>
-            </div>
-            <i class="fa-solid fa-arrow-right"></i>
-            <div class="chart-wrapper">
-
-                <button type="button" class="reset-selection-btn text-btn hidden" data-value="4">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    Reset Selection
-                </button>
-
-                <div id="cell-origin-pie" class="pie-container"></div>
+            <div id="charts-wrapper">
+                <div class="chart-wrapper">
+                    <button type="button" class="reset-selection-btn text-btn  hidden" data-value="0">
+                        <i class="fa-solid fa-rotate-left"></i>Reset Selection
+                    </button>
+                    <div id="group-pie" class="pie-container">
+                    </div>
+                </div>
+                <div class="desktop-only">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+                <div class="mobile-only">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </div>
+                <div class="chart-wrapper">
+                    <button type="button" class="reset-selection-btn text-btn  hidden" data-value="1">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Reset Selection
+                    </button>
+                    <div id="subgroup-pie" class="pie-container"></div>
+                </div>
+                <div class="desktop-only">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+                <div class="mobile-only">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <button type="button" class="reset-selection-btn text-btn  hidden" data-value="2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Reset Selection
+                    </button>
+                    <div id="focus-pie"
+                    class="pie-container"></div>
+                </div>
+                <div class="desktop-only">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+                <div class="mobile-only">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </div>
+                <div class="chart-wrapper">
+                    <button type="button" class="reset-selection-btn text-btn hidden" data-value="3">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Reset Selection
+                    </button>
+                    <div id="model-pie" class="pie-container"></div>
+                </div>
+                <div class="desktop-only">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+                <div class="mobile-only">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </div>
+                <div class="chart-wrapper">
+                    <button type="button" class="reset-selection-btn text-btn hidden" data-value="4">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Reset Selection
+                    </button>
+                    <div id="cell-origin-pie" class="pie-container"></div>
+                </div>
             </div>
         </section>
 

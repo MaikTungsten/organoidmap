@@ -17,14 +17,11 @@ async function initializeMainPage() {
     const large_table = await fetch_large_table();
 
     //#region Header
-    const header_search_input = document.querySelector("#header-search input");
-    const header_search_btn = document.querySelector("#header-search #search-btn");
     const select_options = document.querySelector("#header-search .select-options");
     const select_textfield = document.querySelector("#header-search .select-text-field");
     const select = document.querySelector("#header-search .select");
 
     //  add options to select
-    // const table_columns = ["All_Fields"].concat(Object.keys(large_table[0])); // get all table columns for the field filter
     const table_columns = ["All_Fields", "Title", "Application", "Advantages", "Limitations"]
 
     let active_opt;
@@ -361,6 +358,14 @@ async function initializeMainPage() {
     //#endregion Abbreviations
 
 
+    //#region Footer
+
+    // make logo in footer clickable
+    const logo = document.querySelector("#organoid-map-logo > img")
+    logo.onclick = function(){
+        window.location.href="/"
+    }
+    //#endregion
 
 
 
@@ -376,6 +381,12 @@ async function initializeLegalPage() {
     // add function to the back button
     back_btn.onclick = function() {
         window.location.href = "/"
+    }
+
+    // make logo in footer clickable
+    const logo = document.querySelector("#organoid-map-logo > img")
+    logo.onclick = function(){
+        window.location.href="/"
     }
 }
 
@@ -451,9 +462,190 @@ function createVisualizations(data){
     const model_data_init_condensed = condenseData(model_data_init,threshold);
     const cell_origin_data_init_condensed = condenseData(cell_origin_data_init,threshold);
 
-    
 
     
+
+    const categories = ["Group", "Subgroup", "Focus", "Model", "Cell Origin"];
+    
+    // helper maps, to look up the infor for each category
+    const chart_map = {
+        Group: group_chart,
+        Subgroup: subgroup_chart,
+        Focus: focus_chart,
+        Model: model_chart,
+        "Cell Origin": cell_origin_chart
+    };
+
+    const data_map_init_condensed = {
+        Group: group_data_init_condensed,
+        Subgroup: subgroup_data_init_condensed,
+        Focus: focus_data_init_condensed,
+        Model: model_data_init_condensed,
+        "Cell Origin": cell_origin_data_init_condensed
+    }
+
+    const data_map_init= {
+        Group: group_data_init,
+        Subgroup: subgroup_data_init,
+        Focus: focus_data_init,
+        Model: model_data_init,
+        "Cell Origin": cell_origin_data_init
+    }
+
+    const titles_map = {
+        Group: "Groups",
+        Subgroup: "Subgroups",
+        Focus: "Focuses",
+        Model: "Models",
+        "Cell Origin": "Cell Origins"
+
+    }
+
+    const large_table_map = {
+        Group: "group",
+        Subgroup: "subgroup",
+        Focus: "focus",
+        Model: "model",
+        "Cell Origin": "cell_origin"
+
+    }
+
+    
+    // initialize each chart
+    categories.forEach((category, index) =>{
+        // alternate between blue_options and orange_options
+        const options = returnChartOptions(index);
+
+        // update chart
+        updateChart(chart_map[category], data_map_init_condensed[category], options, titles_map[category], category);
+
+        // for each category, handle if its chart is clicked
+        handleChartClick(chart_map[category], chart_map, data_map_init, data_map_init_condensed, categories, titles_map, large_table_map, threshold, data)
+    })
+    
+    
+
+}
+
+
+/**
+ * Function sets onclick function to Echarts charts
+ * @param {*} chart - Chart
+ * @param {*} chart_map - Chart map to get the other charts
+ * @param {*} data_map_init - Original data map
+ * @param {*} data_map_init_condensed - Condensed data map
+ * @param {string[]} categories - Array of categories
+ * @param {Object} titles_map - Title map for each category
+ * @param {Object} large_table_map - Large table map for each category
+ * @param {int} threshold - Threshold for condensing the data
+ * @param {*} large_table - Large Table Dataset 
+ */
+function handleChartClick(chart, chart_map, data_map_init, data_map_init_condensed, categories, titles_map,large_table_map,threshold, large_table){
+
+    chart.on('click', function(params) {
+        const chart_name = params.seriesName; // e.g. Model, Group
+        const clicked_value = params.name;
+
+        // get index of the chart category
+        let current_idx = categories.indexOf(chart_name);
+
+        // get chart button
+        const reset_btn = chart._dom.previousElementSibling;
+
+        // handle chart reset
+        reset_btn.onclick = function(){
+
+            // loop through categories to update charts
+            categories.forEach((category, index) =>{
+
+                // if index is greater or equal to the current index, update those charts (due to cascading updating behavior)
+                if (index >= current_idx){
+
+                    const options = returnChartOptions(index);
+
+                    updateChart(chart_map[category], data_map_init_condensed[category], options, titles_map[category], category);
+                }
+
+            })
+
+            // if reset is clicked, hide the button again
+            reset_btn.classList.remove("visible");
+            reset_btn.classList.add("hidden");
+
+            // check if there are other visible reset buttons
+            const other_visible_resets = document.querySelectorAll(".reset-selection-btn");
+
+            // loop throught them and hide all, which are hierarchically lower (higher data-value than the current reset button)
+            other_visible_resets.forEach(reset => {
+                if (reset.getAttribute("data-value") > reset_btn.getAttribute("data-value")){
+                    reset.classList.remove("visible");
+                    reset.classList.add("hidden");
+                }
+            })
+
+
+        }
+        reset_btn.classList.add("visible"); // show reset button
+        reset_btn.classList.remove("hidden");
+
+        if(clicked_value !== "Other"){
+            // filter the data
+            const filtered_data = large_table.filter(row => row[large_table_map[chart_name]] === clicked_value);
+
+            // loop through categories to retrieve new data and update charts
+            categories.forEach((category, index) =>{
+
+                // if index is greater or equal to the current indey, update those charts (due to cascading updating behavior)
+                if (index >= current_idx){
+
+                    const options = returnChartOptions(index);
+
+                    const data = returnPieData(getColumnValueFrequencies(large_table_map[category], filtered_data));
+
+                    updateChart(chart_map[category], data, options, titles_map[category], category);
+                }
+            })
+        }else{
+            const small_data = data_map_init[chart_name].filter(item => item.value < threshold); 
+            const small_names = small_data.map(item => item.name);
+
+            const updated_data = large_table.filter(row => small_names.includes(row[large_table_map[chart_name]]))
+            
+            let options = returnChartOptions(current_idx);
+            updateChart(chart, small_data, options, titles_map[chart_name], chart_name);
+
+
+            // loop through categories to retrieve new data and update charts
+            categories.forEach((category, index) =>{
+
+                // if index is greater or equal to the current indey, update those charts (due to cascading updating behavior)
+                if (index > current_idx){
+                    options = returnChartOptions(index);
+
+                    const new_data = returnPieData(getColumnValueFrequencies(large_table_map[category],updated_data));
+
+                    updateChart(chart_map[category], new_data, options, titles_map[category], category);
+                }
+            });
+
+        
+
+        }
+
+    });
+
+
+}
+
+/**
+ * Function that returns the chart options based on the index of the chart.
+ * If the charts are below each other (flex-direction = column) blue -> orange -> blue -> orange -> blue
+ * If its row, blue -> orange -> blue -> blue -> orange
+ * @param {int} index - Index of the chart
+ * @returns {Object} - Echarts options
+ */
+function returnChartOptions(index){
+
     const orange_options = {
         tooltip: {
             trigger: 'item',
@@ -496,7 +688,7 @@ function createVisualizations(data){
                 },
                 data: [], 
                 clockwise: false, 
-                color: ["#df6d30", "#a76a6b",
+                color: ["#d4632a", "#ffc07e", "#811d00", "#a76a6b",
                     "#e3a431",
                     "#d9374a",
                     "#e3ab62",
@@ -567,7 +759,10 @@ function createVisualizations(data){
                 },
                 data: [], 
                 clockwise: false, 
-                color: [" #103456", "#847fa6",
+                color: ["#103456", 
+                    "#627da5", 
+                    "#b5cffb", 
+                    "#847fa6",
                     "#0f1f5f",
                     "#3b8187",
                     "#395bdd",
@@ -597,172 +792,18 @@ function createVisualizations(data){
         ]
     };
 
+    let options;
 
-    
+    const viz_section = document.querySelector("section#visualizations #charts-wrapper");
 
-    const categories = ["Group", "Subgroup", "Focus", "Model", "Cell Origin"];
-    
-    // helper maps, to look up the infor for each category
-    const chart_map = {
-        Group: group_chart,
-        Subgroup: subgroup_chart,
-        Focus: focus_chart,
-        Model: model_chart,
-        "Cell Origin": cell_origin_chart
-    };
 
-    const data_map_init_condensed = {
-        Group: group_data_init_condensed,
-        Subgroup: subgroup_data_init_condensed,
-        Focus: focus_data_init_condensed,
-        Model: model_data_init_condensed,
-        "Cell Origin": cell_origin_data_init_condensed
+    if (viz_section.style.flexDirection === "column"){
+        options = index % 2 === 0 ? blue_options : orange_options;
+    }else{
+        options = (index % 5 === 1 || index % 5 === 4) ? orange_options : blue_options; 
     }
 
-    const data_map_init= {
-        Group: group_data_init,
-        Subgroup: subgroup_data_init,
-        Focus: focus_data_init,
-        Model: model_data_init,
-        "Cell Origin": cell_origin_data_init
-    }
-
-    const titles_map = {
-        Group: "Groups",
-        Subgroup: "Subgroups",
-        Focus: "Focuses",
-        Model: "Models",
-        "Cell Origin": "Cell Origins"
-
-    }
-
-    const large_table_map = {
-        Group: "group",
-        Subgroup: "subgroup",
-        Focus: "focus",
-        Model: "model",
-        "Cell Origin": "cell_origin"
-
-    }
-
-    
-    // initialize each chart
-    categories.forEach((category, index) =>{
-        // alternate between blue_options and orange_options
-        const options = index % 2 === 0 ? blue_options : orange_options;
-
-        // update chart
-        updateChart(chart_map[category], data_map_init_condensed[category], options, titles_map[category], category);
-
-        // for each category, handle if its chart is clicked
-        handleChartClick(chart_map[category], chart_map, data_map_init, data_map_init_condensed, categories, titles_map, large_table_map, options, threshold, data)
-    })
-    
-    
-
-}
-
-
-/**
- * Function sets onclick function to Echarts charts
- * @param {*} chart - Chart
- * @param {*} chart_map - Chart map to get the other charts
- * @param {*} data_map_init - Original data map
- * @param {*} data_map_init_condensed - Condensed data map
- * @param {string[]} categories - Array of categories
- * @param {Object} titles_map - Title map for each category
- * @param {Object} large_table_map - Large table map for each category
- * @param {Object} options - Echarts options
- * @param {int} threshold - Threshold for condensing the data
- * @param {*} large_table - Large Table Dataset 
- */
-function handleChartClick(chart, chart_map, data_map_init, data_map_init_condensed, categories, titles_map,large_table_map, options,threshold, large_table){
-
-    chart.on('click', function(params) {
-        const chart_name = params.seriesName; // e.g. Model, Group
-        const clicked_value = params.name;
-
-        // get index of the chart category
-        let current_idx = categories.indexOf(chart_name);
-
-        // get chart button
-        const reset_btn = chart._dom.previousElementSibling;
-
-        // handle chart reset
-        reset_btn.onclick = function(){
-
-            // loop through categories to update charts
-            categories.forEach((category, index) =>{
-
-                // if index is greater or equal to the current index, update those charts (due to cascading updating behavior)
-                if (index >= current_idx){
-                    updateChart(chart_map[category], data_map_init_condensed[category], options, titles_map[category], category);
-                }
-
-            })
-
-            // if reset is clicked, hide the button again
-            reset_btn.classList.remove("visible");
-            reset_btn.classList.add("hidden");
-
-            // check if there are other visible reset buttons
-            const other_visible_resets = document.querySelectorAll(".reset-selection-btn");
-
-            // loop throught them and hide all, which are hierarchically lower (higher data-value than the current reset button)
-            other_visible_resets.forEach(reset => {
-                if (reset.getAttribute("data-value") > reset_btn.getAttribute("data-value")){
-                    reset.classList.remove("visible");
-                    reset.classList.add("hidden");
-                }
-            })
-
-
-        }
-        reset_btn.classList.add("visible"); // show reset button
-        reset_btn.classList.remove("hidden");
-
-        if(clicked_value !== "Other"){
-            // filter the data
-            const filtered_data = large_table.filter(row => row[large_table_map[chart_name]] === clicked_value);
-
-            // loop through categories to retrieve new data and update charts
-            categories.forEach((category, index) =>{
-
-                // if index is greater or equal to the current indey, update those charts (due to cascading updating behavior)
-                if (index >= current_idx){
-
-                    const data = returnPieData(getColumnValueFrequencies(large_table_map[category], filtered_data));
-
-                    updateChart(chart_map[category], data, options, titles_map[category], category);
-                }
-            })
-        }else{
-            const small_data = data_map_init[chart_name].filter(item => item.value < threshold); 
-            const small_names = small_data.map(item => item.name);
-
-            const updated_data = large_table.filter(row => small_names.includes(row[large_table_map[chart_name]]))
-
-            updateChart(chart, small_data, options, titles_map[chart_name], chart_name);
-
-
-            // loop through categories to retrieve new data and update charts
-            categories.forEach((category, index) =>{
-
-                // if index is greater or equal to the current indey, update those charts (due to cascading updating behavior)
-                if (index > current_idx){
-                    const new_data = returnPieData(getColumnValueFrequencies(large_table_map[category],updated_data));
-
-                    updateChart(chart_map[category], new_data, options, titles_map[category], category);
-                }
-            });
-
-        
-
-        }
-
-    });
-
-
+    return options;
 }
 
 
@@ -791,6 +832,7 @@ function updateChart(chart, data, options, title, chart_name) {
 
 
     options.legend.data = data.map(item => item.name);
+
 
     chart.setOption(options, true);
 }
@@ -1016,7 +1058,7 @@ function createDataTable(large_table){
 
                 // redirect to datatable section
                 window.location.href = "#datatable";
-                console.log(value);
+
 
                 // get current filter
                 const current_filter = table.getFilters();
@@ -1089,7 +1131,19 @@ function createDataTable(large_table){
             // update checkboxes with no filter set
             updateCheckboxes({}, large_table)
 
+            // hide clear filter
             clear_filter_btn.style.display = "none";
+
+            // if search field has an input clear it
+            if(header_search_input.value){
+
+                // simulate header search click to remove input
+                header_search_clear_btn.click();
+
+                // prevent jumping back to search
+                window.location.href = "#datatable"
+            }
+            
             
         };
     });
@@ -1260,18 +1314,14 @@ function activateCheckboxFilter(options_container, table_col, table ){
                 
             }
 
-            // // if there are selected values, set the filter for or selected checkboxes
+            // if there are selected values, set the filter for or selected checkboxes
             if (selected_filter.length > 0) {
 
                 table.setFilter(selected_filter);
             
             } else {
                 // if no checkboxes are selected, reset the filter
-                console.log()
                 table.clearFilter();
-                // const select = options_container.parentNode.previousElementSibling;
-                // select.classList.remove("active-filter");
-
             }
         });
 
