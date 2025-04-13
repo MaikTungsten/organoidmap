@@ -10,11 +10,11 @@ The backend is implemented with flask and flask_sqlalchemy (see ``app.py`` and `
 
 ## Frontend
 
-The frontend is implemented with vanilla CSS, JavaScript and HTML (see ``static``and ``templates``) using the following component libraries: XXX.
+The frontend is implemented with vanilla CSS, JavaScript and HTML (see ``static``and ``templates``).
 
 ## Contact
 
-Questions or feedback regarding the web app? Please contact maik.wolfram-schauerte@uni-tuebingen.de, anna.wolfram@uni-tuebingen.de or lisa.sevenich@uni-tuebingen.de.
+Questions or feedback regarding the web app? Please contact maik.wolfram-schauerte@uni-tuebingen.de or anna.wolfram@uni-tuebingen.de.
 
 ## Acknowledgement
 
