@@ -237,14 +237,16 @@ ol li::marker {
     color: #A9C3DA;
     gap: 0.75rem;
     padding: 4rem 5vw 8rem 5vw;
-    background-image: 
-        linear-gradient(var(--blue-filter)),
-        url("/static/header.webp");
-        background-blend-mode: multiply;
+    background-image:
+    linear-gradient(var(--blue-filter), var(--blue-filter)),
+    image-set(
+      url("/static/header.webp") type("image/webp"),
+      url("/static/header.jpg") type("image/jpeg")
+    );
+    background-blend-mode: multiply;
     background-size: cover;
-    background-repeat: no-repeat ;
+    background-repeat: no-repeat;
     background-position: center;
-
 }
 
 .header-background .display-2{
