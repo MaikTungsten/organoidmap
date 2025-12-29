@@ -1,6 +1,6 @@
 # OrganoidMap
 
-This repository contains code for OrganoidMap - a web application allowing to search a database containing results from a systematic literature search for brain organoid models. The **OrganoidMap** is available at: _Link will follow_
+This repository contains code for OrganoidMap - a web application allowing to search a database containing results from a systematic literature search for brain organoid models. The **OrganoidMap** is available at: organoidmap.cs.uni-tuebingen.de
 
 Please refer to the original publication (_Link will follow_) for further information.
 
@@ -11,6 +11,10 @@ The backend is implemented with flask and flask_sqlalchemy (see ``app.py`` and `
 ## Frontend
 
 The frontend is implemented with vanilla CSS, JavaScript and HTML (see ``static``and ``templates``).
+
+## Running OrganoidMap locally
+
+To run OrganoidMap locally, clone this repository, install all requirements from ``requirements.txt`` and use ``flask run`` to start the application on your local device.
 
 ## Contact
 
